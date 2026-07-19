@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { getIdea } from '@/src/lib/ideas/idea-service';
 
+export const dynamic = 'force-dynamic';
+
 export default async function IdeaDetailPage({ params }: { params: { id: string } }) {
   const authenticated = await isAuthenticatedRoute();
 
@@ -10,7 +12,13 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
     redirect('/login');
   }
 
-  const idea = await getIdea(params.id);
+  let idea = null as Awaited<ReturnType<typeof getIdea>>;
+
+  try {
+    idea = await getIdea(params.id);
+  } catch {
+    idea = null;
+  }
 
   if (!idea) {
     return (
