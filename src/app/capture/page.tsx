@@ -95,8 +95,8 @@ export default function CapturePage() {
           />
         </label>
 
-        {error ? <p style={{ color: '#fda4af' }}>{error}</p> : null}
-        {success ? <p style={{ color: '#86efac' }}>Idea saved successfully.</p> : null}
+        {error ? <p style={{ color: '#B91C1C' }}>{error}</p> : null}
+        {success ? <p style={{ color: '#15803D' }}>Idea saved successfully.</p> : null}
 
         <button type="submit" disabled={submitting}>
           {submitting ? 'Saving…' : 'Save idea'}

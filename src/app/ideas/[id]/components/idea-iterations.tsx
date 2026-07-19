@@ -68,7 +68,7 @@ export default function IdeaIterations({ ideaId }: { ideaId: string }) {
         </button>
       </div>
 
-      {error ? <p style={{ color: '#fda4af', marginTop: '1rem' }}>{error}</p> : null}
+      {error ? <p style={{ color: '#B91C1C', marginTop: '1rem' }}>{error}</p> : null}
 
       <div className="timeline" style={{ marginTop: '1.5rem' }}>
         {notes.length === 0 ? (

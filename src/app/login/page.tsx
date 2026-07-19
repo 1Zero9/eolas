@@ -40,7 +40,7 @@ export default function LoginPage() {
             placeholder="Enter password"
           />
         </label>
-        {error ? <p style={{ color: '#fda4af' }}>{error}</p> : null}
+        {error ? <p style={{ color: '#B91C1C' }}>{error}</p> : null}
         <button type="submit">Continue</button>
       </form>
     </main>
