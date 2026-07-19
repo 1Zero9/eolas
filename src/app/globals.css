@@ -1,20 +1,25 @@
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --background: #F4F7F3;
-  --surface: #ffffff;
-  --surface-alt: #f7f9f6;
-  --border: #dce5df;
-  --text-primary: #12271c;
-  --text-secondary: #425141;
-  --text-muted: #657869;
-  --primary: #14532d;
-  --primary-light: #1f7a48;
-  --primary-dark: #0c3b20;
-  --accent: #eab308;
-  --accent-light: #facc15;
-  --accent-dark: #a16207;
-  --shadow: 0 24px 80px rgba(18, 39, 28, 0.08);
+  --background: #0B0F14;
+  --surface: #141B23;
+  --surface-alt: #1D2630;
+  --border: #2B3642;
+  --text-primary: #E6ECF3;
+  --text-secondary: #9AA4B2;
+  --text-muted: #7C8894;
+  --primary: #00FF9D;
+  --primary-light: #00E5FF;
+  --primary-dark: #00B377;
+  --accent: #FFD60A;
+  --accent-light: #FFE873;
+  --accent-dark: #FF8A00;
+  --purple: #8A2CFF;
+  --pink: #FF2CF0;
+  --danger: #FF3B5C;
+  --ink: #06110D;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  --glow-primary: 0 0 0 4px rgba(0, 255, 157, 0.16);
   --radius: 1.5rem;
 }
 
@@ -33,8 +38,10 @@ html, body {
 
 body {
   font: 16px Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: radial-gradient(circle at top left, rgba(31, 122, 72, 0.09), transparent 22%),
-    radial-gradient(circle at 80% 10%, rgba(234, 179, 8, 0.12), transparent 15%),
+  background:
+    radial-gradient(circle at 10% 0%, rgba(0, 255, 157, 0.08), transparent 24%),
+    radial-gradient(circle at 85% 8%, rgba(138, 44, 255, 0.1), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(0, 229, 255, 0.05), transparent 30%),
     var(--background);
   color: var(--text-primary);
 }
@@ -54,7 +61,7 @@ main {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(11, 15, 20, 0.82);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
@@ -76,18 +83,20 @@ main {
   font-weight: 800;
   letter-spacing: 0.22em;
   font-size: 1.2rem;
-  color: var(--primary-dark);
+  color: var(--text-primary);
 }
 
 .brand img {
   width: 42px;
   height: 42px;
   display: block;
-  transition: transform 0.25s ease;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  filter: drop-shadow(0 0 10px rgba(0, 255, 157, 0.35));
 }
 
 .brand:hover img {
   transform: rotate(-8deg) scale(1.05);
+  filter: drop-shadow(0 0 16px rgba(0, 229, 255, 0.5));
 }
 
 .app-nav {
@@ -109,27 +118,27 @@ main {
 
 .app-nav a:hover {
   background: var(--surface-alt);
-  color: var(--primary);
+  color: var(--text-primary);
 }
 
 .app-nav a.active {
-  background: rgba(31, 122, 72, 0.1);
+  background: rgba(0, 255, 157, 0.12);
   color: var(--primary);
   font-weight: 600;
 }
 
 .app-nav .nav-cta {
-  background: var(--primary);
-  color: white;
-  font-weight: 600;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--ink);
+  font-weight: 700;
   margin-left: 0.5rem;
-  box-shadow: 0 8px 18px rgba(20, 83, 45, 0.25);
+  box-shadow: 0 8px 22px rgba(0, 255, 157, 0.25);
 }
 
 .app-nav .nav-cta:hover,
 .app-nav .nav-cta.active {
-  background: var(--primary-light);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  color: var(--ink);
 }
 
 h1, h2, h3 {
@@ -172,7 +181,7 @@ select {
   border-radius: 1rem;
   padding: 0.95rem 1rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  box-shadow: inset 0 1px 2px rgba(18, 39, 28, 0.08);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 textarea {
@@ -185,7 +194,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(20, 83, 45, 0.14);
+  box-shadow: var(--glow-primary);
 }
 
 button {
@@ -194,43 +203,44 @@ button {
   padding: 0.85rem 1.35rem;
   border-radius: 999px;
   border: 1px solid transparent;
-  background: var(--primary);
-  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--ink);
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 16px 28px rgba(20, 83, 45, 0.18);
+  box-shadow: 0 16px 30px rgba(0, 255, 157, 0.2);
 }
 
 button:hover,
 button:focus-visible {
-  background: var(--primary-light);
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
   transform: translateY(-1px);
-  box-shadow: 0 20px 34px rgba(20, 83, 45, 0.24);
+  box-shadow: 0 20px 38px rgba(0, 229, 255, 0.28);
   outline: none;
 }
 
 button:disabled {
-  opacity: 0.55;
+  opacity: 0.45;
   cursor: not-allowed;
   transform: none;
 }
 
 .button-secondary {
-  background: var(--surface);
+  background: transparent;
   color: var(--primary);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(0, 255, 157, 0.35);
   box-shadow: none;
 }
 
 .button-secondary:hover,
 .button-secondary:focus-visible {
-  background: var(--surface-alt);
-  color: var(--primary-dark);
+  background: rgba(0, 255, 157, 0.08);
+  color: var(--primary-light);
+  box-shadow: none;
 }
 
 button:active {
   transform: translateY(0) scale(0.97);
-  box-shadow: 0 8px 16px rgba(20, 83, 45, 0.18);
+  box-shadow: 0 8px 16px rgba(0, 255, 157, 0.18);
 }
 
 input[type='submit'],
@@ -244,8 +254,8 @@ button[type='submit'] {
   height: 1em;
   vertical-align: -0.15em;
   margin-right: 0.5em;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-top-color: white;
+  border: 2px solid rgba(6, 17, 13, 0.35);
+  border-top-color: var(--ink);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -271,15 +281,15 @@ button[type='submit'] {
 }
 
 .alert-success {
-  background: rgba(31, 122, 72, 0.1);
-  border: 1px solid rgba(31, 122, 72, 0.25);
-  color: var(--primary-dark);
+  background: rgba(0, 255, 157, 0.08);
+  border: 1px solid rgba(0, 255, 157, 0.3);
+  color: var(--primary);
 }
 
 .alert-error {
-  background: rgba(185, 28, 28, 0.07);
-  border: 1px solid rgba(185, 28, 28, 0.22);
-  color: #991b1b;
+  background: rgba(255, 59, 92, 0.1);
+  border: 1px solid rgba(255, 59, 92, 0.3);
+  color: #FF7A93;
 }
 
 @keyframes fade-slide-in {
@@ -293,7 +303,7 @@ button[type='submit'] {
 }
 
 .card {
-  border: 1px solid rgba(28, 59, 34, 0.08);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.75rem;
   box-shadow: var(--shadow);
@@ -302,11 +312,14 @@ button[type='submit'] {
 
 .card:hover {
   transform: translateY(-1px);
-  border-color: rgba(20, 83, 45, 0.12);
+  border-color: rgba(0, 255, 157, 0.25);
 }
 
 .hero-card {
-  background: linear-gradient(135deg, rgba(31, 122, 72, 0.08), rgba(234, 179, 8, 0.06));
+  background:
+    radial-gradient(circle at 0% 0%, rgba(0, 255, 157, 0.1), transparent 45%),
+    radial-gradient(circle at 100% 0%, rgba(138, 44, 255, 0.12), transparent 45%),
+    var(--surface);
 }
 
 .meta-row {
@@ -321,7 +334,7 @@ button[type='submit'] {
   align-items: center;
   padding: 0.45rem 0.85rem;
   border-radius: 999px;
-  background: rgba(31, 122, 72, 0.08);
+  background: rgba(0, 229, 255, 0.1);
   color: var(--text-secondary);
   font-size: 0.95rem;
 }
@@ -342,7 +355,7 @@ button[type='submit'] {
 
 .stat-card {
   background: var(--surface);
-  border: 1px solid rgba(28, 59, 34, 0.08);
+  border: 1px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.25rem 1.4rem;
   box-shadow: var(--shadow);
@@ -351,14 +364,14 @@ button[type='submit'] {
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(20, 83, 45, 0.18);
+  border-color: rgba(0, 255, 157, 0.3);
 }
 
 .stat-value {
   font-size: 2.1rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: var(--primary-dark);
+  color: var(--text-primary);
   line-height: 1;
 }
 
@@ -372,7 +385,10 @@ button[type='submit'] {
 }
 
 .stat-accent .stat-value {
-  color: var(--accent-dark);
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .pipeline {
@@ -396,7 +412,7 @@ button[type='submit'] {
 }
 
 .pipeline-step.next::before {
-  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
 }
 
 .pipeline-step h3 {
@@ -426,7 +442,7 @@ button[type='submit'] {
 }
 
 .timeline {
-  border-left: 2px solid rgba(20, 83, 45, 0.22);
+  border-left: 2px solid rgba(0, 255, 157, 0.25);
   padding-left: 1rem;
 }
 
@@ -443,13 +459,13 @@ button[type='submit'] {
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
   margin-top: 0.35rem;
-  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 5px rgba(11, 15, 20, 0.9), 0 0 12px rgba(0, 255, 157, 0.5);
 }
 
 .timeline-content {
   padding: 1.2rem;
   background: var(--surface-alt);
-  border: 1px solid rgba(27, 82, 41, 0.08);
+  border: 1px solid var(--border);
   border-radius: 1.25rem;
 }
 
@@ -496,12 +512,12 @@ button[type='submit'] {
   align-items: flex-end;
   gap: 0.35rem;
   padding: 0.5rem 0.9rem;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(20, 27, 35, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border);
   border-radius: 999px;
-  box-shadow: 0 18px 44px rgba(18, 39, 28, 0.18);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
 }
 
 .dock a {
@@ -529,7 +545,7 @@ button[type='submit'] {
 
 .dock a.active {
   color: var(--primary);
-  background: rgba(31, 122, 72, 0.1);
+  background: rgba(0, 255, 157, 0.12);
 }
 
 .dock .dock-fab {
@@ -540,8 +556,8 @@ button[type='submit'] {
   border-radius: 50%;
   justify-content: center;
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  color: white;
-  box-shadow: 0 12px 26px rgba(20, 83, 45, 0.4);
+  color: var(--ink);
+  box-shadow: 0 12px 28px rgba(0, 255, 157, 0.4);
 }
 
 .dock .dock-fab svg {
@@ -551,7 +567,7 @@ button[type='submit'] {
 
 .dock .dock-fab.active,
 .dock .dock-fab:hover {
-  color: white;
+  color: var(--ink);
   background: linear-gradient(135deg, var(--primary-light), var(--primary));
 }
 

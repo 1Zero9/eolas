@@ -1,7 +1,7 @@
-const CACHE_NAME = 'eolas-cache-v1';
+const CACHE_NAME = 'eolas-cache-v2';
 const ASSETS_TO_CACHE = [
   '/',
-  '/favicon.svg',
+  '/favicon-32.png',
   '/manifest.webmanifest',
   '/capture',
   '/ideas',
