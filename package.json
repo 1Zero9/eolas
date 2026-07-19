@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "prisma": "prisma"
+    "prisma": "prisma",
+    "worker:start": "node ./worker/index.js"
   },
   "dependencies": {
     "@prisma/client": "^5.4.1",

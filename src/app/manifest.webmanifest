@@ -1,0 +1,16 @@
+{
+  "name": "Eolas",
+  "short_name": "Eolas",
+  "description": "Capture ideas on mobile and manage them in the Eolas dashboard.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#0F766E"
+}

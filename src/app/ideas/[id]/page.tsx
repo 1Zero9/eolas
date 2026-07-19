@@ -39,6 +39,9 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
       <form action={`/api/ideas/${idea.id}/analyse`} method="post">
         <button type="submit">Analyse idea</button>
       </form>
+      <form action={`/api/ideas/${idea.id}/promote`} method="post" style={{ marginTop: '1rem' }}>
+        <button type="submit">Promote to project</button>
+      </form>
       <Link href="/ideas">Back to ideas</Link>
     </main>
   );

@@ -37,6 +37,13 @@ enum AnalysisStatus {
   REJECTED
 }
 
+enum WorkerStatus {
+  ONLINE
+  OFFLINE
+  BUSY
+  DISABLED
+}
+
 model Idea {
   id         String         @id @default(cuid())
   title      String?
@@ -45,6 +52,8 @@ model Idea {
   status     IdeaStatus     @default(INBOX)
   source     IdeaSource     @default(WEB)
   analyses   IdeaAnalysis[]
+  project    Project?       @relation()
+  jobs       Job[]
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
 
@@ -71,4 +80,86 @@ model IdeaAnalysis {
   updatedAt             DateTime       @updatedAt
 
   @@index([ideaId, createdAt])
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  ideaId        String?       @unique
+  name          String
+  slug          String        @unique
+  description   String?       @db.Text
+  status        String        @default("PLANNED")
+  localPath     String?
+  githubUrl     String?
+  githubRepo    String?
+  defaultBranch String?
+  lastCommitSha String?
+  backedUpAt    DateTime?
+  idea          Idea?         @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+  jobs          Job[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model Job {
+  id                  String     @id @default(cuid())
+  ideaId              String?
+  projectId           String?
+  workerId            String?
+  type                String
+  status              String     @default("PENDING")
+  executionTarget     String
+  priority            Int        @default(100)
+  payload             Json
+  result              Json?
+  requiresApproval    Boolean    @default(false)
+  approvedAt          DateTime?
+  approvedBy          String?
+  attempts            Int        @default(0)
+  maxAttempts         Int        @default(3)
+  lockedAt            DateTime?
+  lockedBy            String?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  errorMessage        String?     @db.Text
+  idea                Idea?       @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+  project             Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  worker              Worker?     @relation(fields: [workerId], references: [id], onDelete: SetNull)
+  events              JobEvent[]
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  @@index([status, executionTarget, priority])
+}
+
+model Worker {
+  id                 String       @id @default(cuid())
+  name               String       @unique
+  platform           String
+  hostname           String?
+  status             WorkerStatus @default(OFFLINE)
+  allowedProjectRoot String
+  capabilities       Json
+  version            String?
+  lastSeenAt         DateTime?
+  currentJobId       String?
+  jobs               Job[]
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([status, lastSeenAt])
+}
+
+model JobEvent {
+  id        String   @id @default(cuid())
+  jobId     String
+  eventType String
+  message   String   @db.Text
+  metadata  Json?
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([jobId, createdAt])
 }

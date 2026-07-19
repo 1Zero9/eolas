@@ -20,6 +20,12 @@ export default async function HomePage() {
         <Link href="/ideas" style={{ display: 'inline-block' }}>
           <button type="button">View ideas</button>
         </Link>
+        <Link href="/projects" style={{ display: 'inline-block' }}>
+          <button type="button">View projects</button>
+        </Link>
+        <Link href="/jobs" style={{ display: 'inline-block' }}>
+          <button type="button">View jobs</button>
+        </Link>
       </div>
     </main>
   );
