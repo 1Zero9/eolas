@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -9,7 +10,7 @@ export default function MobileCapturePage() {
   const [rawCapture, setRawCapture] = useState('');
   const [summary, setSummary] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -22,7 +23,7 @@ export default function MobileCapturePage() {
 
   async function handleSubmit() {
     setError(null);
-    setSuccess(false);
+    setSavedId(null);
     setSubmitting(true);
 
     try {
@@ -42,7 +43,8 @@ export default function MobileCapturePage() {
         throw new Error(payload.error || 'Unable to save idea');
       }
 
-      setSuccess(true);
+      const saved = await response.json().catch(() => null);
+      setSavedId(saved?.id ?? null);
       setTitle('');
       setRawCapture('');
       setSummary('');
@@ -96,11 +98,22 @@ export default function MobileCapturePage() {
             />
           </label>
 
-          {error ? <p style={{ color: '#B91C1C' }}>{error}</p> : null}
-          {success ? <p style={{ color: '#15803D' }}>Idea saved successfully.</p> : null}
+          {error ? <div className="alert alert-error" role="alert">⚠ {error}</div> : null}
+          {savedId ? (
+            <div className="alert alert-success" role="status">
+              ✓ Idea captured. <Link href={`/ideas/${savedId}`}>Open it</Link> or keep going.
+            </div>
+          ) : null}
 
           <button type="button" onClick={handleSubmit} disabled={submitting || !rawCapture.trim()}>
-            {submitting ? 'Saving…' : 'Save idea'}
+            {submitting ? (
+              <>
+                <span className="spinner" aria-hidden="true" />
+                Saving…
+              </>
+            ) : (
+              'Save idea'
+            )}
           </button>
         </div>
       </section>

@@ -68,12 +68,23 @@ export default function IdeaIterations({ ideaId }: { ideaId: string }) {
 
         <div className="button-grid">
           <button type="button" onClick={addNote} disabled={saving || !note.trim()}>
-            {saving ? 'Saving…' : 'Add note'}
+            {saving ? (
+              <>
+                <span className="spinner" aria-hidden="true" />
+                Saving…
+              </>
+            ) : (
+              'Add note'
+            )}
           </button>
         </div>
       </div>
 
-      {error ? <p style={{ color: '#B91C1C', marginTop: '1rem' }}>{error}</p> : null}
+      {error ? (
+        <div className="alert alert-error" role="alert" style={{ marginTop: '1rem' }}>
+          ⚠ {error}
+        </div>
+      ) : null}
 
       <div className="timeline" style={{ marginTop: '1.5rem' }}>
         {notes.length === 0 ? (
