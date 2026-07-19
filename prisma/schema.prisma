@@ -28,16 +28,47 @@ enum IdeaSource {
   API
 }
 
+enum AnalysisStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  APPROVED
+  REJECTED
+}
+
 model Idea {
-  id         String     @id @default(cuid())
+  id         String         @id @default(cuid())
   title      String?
-  rawCapture String     @db.Text
-  summary    String?    @db.Text
-  status     IdeaStatus @default(INBOX)
-  source     IdeaSource @default(WEB)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  rawCapture String         @db.Text
+  summary    String?        @db.Text
+  status     IdeaStatus     @default(INBOX)
+  source     IdeaSource     @default(WEB)
+  analyses   IdeaAnalysis[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 
   @@index([status])
   @@index([createdAt])
+}
+
+model IdeaAnalysis {
+  id                    String         @id @default(cuid())
+  ideaId                String
+  status                AnalysisStatus @default(PENDING)
+  generatedTitle        String?
+  generatedSummary      String?        @db.Text
+  problemStatement      String?        @db.Text
+  intendedUsers         Json?
+  categories            Json?
+  suggestedCapabilities Json?
+  clarificationQuestions Json?
+  recommendedNextAction String?        @db.Text
+  confidence            Float?
+  rawResponse           Json?
+  idea                  Idea           @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  @@index([ideaId, createdAt])
 }

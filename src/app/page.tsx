@@ -1,6 +1,14 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { isAuthenticatedRoute } from '@/src/lib/auth';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const authenticated = await isAuthenticatedRoute();
+
+  if (!authenticated) {
+    redirect('/login');
+  }
+
   return (
     <main>
       <h1>Eolas</h1>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function CapturePage() {
@@ -11,6 +11,14 @@ export default function CapturePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    void fetch('/api/auth/check').then(async (response) => {
+      if (!response.ok) {
+        router.replace('/login');
+      }
+    });
+  }, [router]);
 
   async function handleSubmit() {
     setError(null);

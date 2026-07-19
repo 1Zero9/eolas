@@ -1,7 +1,14 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { listIdeas } from '@/src/lib/ideas/idea-service';
 
 export default async function IdeasPage() {
+  const authenticated = await isAuthenticatedRoute();
+
+  if (!authenticated) {
+    redirect('/login');
+  }
   const ideas = await listIdeas();
 
   return (
