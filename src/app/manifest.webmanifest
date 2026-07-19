@@ -5,8 +5,25 @@
   "icons": [
     {
       "src": "/favicon.svg",
-      "sizes": "128x128",
-      "type": "image/svg+xml"
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Capture idea",
+      "short_name": "Capture",
+      "description": "Quickly capture a new idea",
+      "url": "/capture",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "View projects",
+      "short_name": "Projects",
+      "description": "Open your current projects",
+      "url": "/projects",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
     }
   ],
   "start_url": "/",
