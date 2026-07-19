@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
+import { requireWorkerSecret } from '@/src/lib/worker-auth';
 
 export async function POST(request: Request) {
+  const authError = requireWorkerSecret(request);
+  if (authError) return authError;
+
   const body = await request.json();
   const name = body?.name;
   const hostname = body?.hostname;

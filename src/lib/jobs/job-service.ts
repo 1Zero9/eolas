@@ -46,29 +46,34 @@ export async function claimJob(workerName: string) {
     return null;
   }
 
-  const job = await prisma.job.findFirst({
+  const candidates = await prisma.job.findMany({
     where: {
       executionTarget: 'LOCAL_WORKER',
       status: 'QUEUED',
       requiresApproval: false,
     },
     orderBy: { priority: 'asc' },
+    take: 5,
   });
 
-  if (!job) {
-    return null;
+  for (const candidate of candidates) {
+    const claim = await prisma.job.updateMany({
+      where: { id: candidate.id, status: 'QUEUED' },
+      data: {
+        status: 'RUNNING',
+        lockedAt: new Date(),
+        lockedBy: worker.id,
+        workerId: worker.id,
+        startedAt: new Date(),
+      },
+    });
+
+    if (claim.count === 1) {
+      return prisma.job.findUnique({ where: { id: candidate.id } });
+    }
   }
 
-  return prisma.job.update({
-    where: { id: job.id },
-    data: {
-      status: 'RUNNING',
-      lockedAt: new Date(),
-      lockedBy: worker.id,
-      workerId: worker.id,
-      startedAt: new Date(),
-    },
-  });
+  return null;
 }
 
 export async function completeJob(jobId: string, result: any) {

@@ -1,14 +1,8 @@
-import { NextResponse } from 'next/server';
-import { AUTH_COOKIE_NAME } from '@/src/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { isAuthenticatedRequest } from '@/src/lib/auth';
 
-export async function GET(request: Request) {
-  const cookieHeader = request.headers.get('cookie') ?? '';
-  const authenticated = cookieHeader
-    .split(';')
-    .map((item) => item.trim())
-    .some((item) => item.startsWith(`${AUTH_COOKIE_NAME}=`));
-
-  if (!authenticated) {
+export async function GET(request: NextRequest) {
+  if (!isAuthenticatedRequest(request)) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

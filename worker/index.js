@@ -8,15 +8,29 @@ const execFileAsync = util.promisify(execFile);
 const BASE_URL = process.env.EOLAS_CLOUD_URL || 'http://localhost:3000';
 const WORKER_NAME = process.env.EOLAS_WORKER_NAME || `eolas-worker-${os.hostname()}`;
 const ALLOWED_ROOT = path.resolve(process.env.EOLAS_PROJECT_ROOT || path.join(os.homedir(), 'Projects'));
+const WORKER_SECRET = process.env.EOLAS_WORKER_SECRET;
 
 if (typeof globalThis.fetch !== 'function') {
   throw new Error('Worker requires Node 20+ with built-in fetch support.');
 }
 
+if (!WORKER_SECRET) {
+  throw new Error(
+    'EOLAS_WORKER_SECRET is not set. Set it to the same value as the cloud app\'s EOLAS_WORKER_SECRET env var.',
+  );
+}
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'x-worker-secret': WORKER_SECRET,
+  };
+}
+
 async function registerWorker() {
   const response = await globalThis.fetch(`${BASE_URL}/api/workers/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify({
       name: WORKER_NAME,
       hostname: os.hostname(),
@@ -32,7 +46,7 @@ async function registerWorker() {
 async function heartbeat() {
   await globalThis.fetch(`${BASE_URL}/api/workers/heartbeat`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify({ name: WORKER_NAME }),
   });
 }
@@ -40,7 +54,7 @@ async function heartbeat() {
 async function claimJob() {
   const response = await globalThis.fetch(`${BASE_URL}/api/workers/claim-job`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify({ workerId: WORKER_NAME }),
   });
 
@@ -54,7 +68,7 @@ async function claimJob() {
 async function reportJobResult(jobId, success, payload) {
   await globalThis.fetch(`${BASE_URL}/api/workers/complete-job`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify({
       jobId,
       success,

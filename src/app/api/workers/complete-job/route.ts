@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { completeJob, failJob } from '@/src/lib/jobs/job-service';
 import { prisma } from '@/src/lib/db';
+import { requireWorkerSecret } from '@/src/lib/worker-auth';
 
 export async function POST(request: Request) {
+  const authError = requireWorkerSecret(request);
+  if (authError) return authError;
+
   const body = await request.json().catch(() => ({}));
   const jobId = body?.jobId;
   const success = body?.success ?? true;
