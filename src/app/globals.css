@@ -43,10 +43,81 @@ main {
   padding: 2rem 1.5rem 3rem;
 }
 
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.brand img {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+.app-nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.app-nav a {
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.6rem;
+  font-size: 0.925rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.app-nav a:hover {
+  background: var(--surface-alt);
+  color: var(--primary);
+}
+
 h1 {
   margin: 0;
-  font-size: clamp(2.5rem, 4vw, 4rem);
-  letter-spacing: -0.04em;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  letter-spacing: -0.03em;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.card p {
+  margin-top: 0.5rem;
+  line-height: 1.6;
 }
 
 p {
@@ -56,32 +127,55 @@ p {
   line-height: 1.75;
 }
 
-.form-grid, .button-grid {
+.form-grid {
   display: grid;
   gap: 0.9rem;
 }
 
 .button-grid {
-  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 button {
   font: inherit;
-  padding: 1rem 1.25rem;
-  border-radius: 1rem;
+  font-weight: 500;
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.6rem;
   border: 1px solid transparent;
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  background: var(--primary);
   color: white;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 18px 60px rgba(20, 83, 45, 0.18);
+  box-shadow: 0 2px 8px rgba(20, 83, 45, 0.2);
 }
 
 button:hover,
 button:focus-visible {
-  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  background: var(--primary-light);
   transform: translateY(-1px);
   outline: none;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button-secondary {
+  background: var(--surface);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.button-secondary:hover,
+.button-secondary:focus-visible {
+  background: var(--surface-alt);
+  color: var(--primary-dark);
 }
 
 button:active {

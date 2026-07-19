@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import ServiceWorkerRegistration from '@/src/app/components/service-worker-registration';
 
 export const metadata: Metadata = {
@@ -31,6 +32,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <ServiceWorkerRegistration />
+        <header className="app-header">
+          <div className="app-header-inner">
+            <Link href="/" className="brand">
+              <img src="/icon-192.png" alt="Eolas logo" />
+              EOLAS
+            </Link>
+            <nav className="app-nav">
+              <Link href="/capture">Capture</Link>
+              <Link href="/ideas">Ideas</Link>
+              <Link href="/projects">Projects</Link>
+              <Link href="/jobs">Jobs</Link>
+            </nav>
+          </div>
+        </header>
         {children}
       </body>
     </html>
