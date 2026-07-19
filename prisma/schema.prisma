@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IdeaStatus {
+  INBOX
+  ANALYSING
+  ASSESSED
+  READY
+  QUEUED
+  BUILDING
+  POC
+  MVP
+  PARKED
+  REJECTED
+}
+
+enum IdeaSource {
+  WEB
+  MOBILE
+  VOICE
+  IMPORT
+  API
+}
+
+model Idea {
+  id         String     @id @default(cuid())
+  title      String?
+  rawCapture String     @db.Text
+  summary    String?    @db.Text
+  status     IdeaStatus @default(INBOX)
+  source     IdeaSource @default(WEB)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}

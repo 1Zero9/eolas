@@ -1,0 +1,45 @@
+:root {
+  color-scheme: dark;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #07111f;
+  color: #f5f7fb;
+}
+
+a {
+  color: inherit;
+}
+
+main {
+  padding: 1rem;
+}
+
+form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+input, textarea, button {
+  font: inherit;
+  padding: 0.8rem;
+  border-radius: 0.75rem;
+  border: 1px solid #2b3d56;
+}
+
+button {
+  cursor: pointer;
+  background: #257cff;
+  color: white;
+  border: none;
+}
+
+.card {
+  border: 1px solid #23364f;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #0e1b2c;
+}
