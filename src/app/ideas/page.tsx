@@ -26,16 +26,21 @@ export default async function IdeasPage() {
       {ideas.length === 0 ? (
         <p>No ideas yet. Capture one from the mobile view.</p>
       ) : (
-        ideas.map((idea) => (
-          <div key={idea.id} className="card">
-            <h2>{idea.title ?? 'Untitled idea'}</h2>
-            <p>{idea.rawCapture}</p>
-            <p>
-              Status: {idea.status} · Source: {idea.source}
-            </p>
-            <Link href={`/ideas/${idea.id}`}>Open idea</Link>
-          </div>
-        ))
+        <div className="timeline" style={{ marginTop: '1.5rem' }}>
+          {ideas.map((idea) => (
+            <div key={idea.id} className="timeline-event">
+              <div className="timeline-marker" />
+              <div className="timeline-content">
+                <h2>{idea.title ?? 'Untitled idea'}</h2>
+                <p>{idea.rawCapture}</p>
+                <p className="small-text">
+                  Status: {idea.status} · Source: {idea.source}
+                </p>
+                <Link href={`/ideas/${idea.id}`}>Open idea</Link>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </main>
   );

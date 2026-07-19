@@ -88,6 +88,44 @@ button:active {
   transform: translateY(0);
 }
 
+.mobile-input {
+  width: 100%;
+  font: inherit;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #2b3d56;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  margin-top: 0.75rem;
+}
+
+.timeline {
+  border-left: 2px solid rgba(15, 118, 110, 0.35);
+  padding-left: 1rem;
+}
+
+.timeline-event {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.timeline-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  margin-top: 0.5rem;
+}
+
+.timeline-content {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+}
+
 .card {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1.25rem;

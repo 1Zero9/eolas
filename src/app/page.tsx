@@ -23,6 +23,9 @@ export default async function HomePage() {
         <Link href="/capture">
           <button type="button">Capture an idea</button>
         </Link>
+        <Link href="/mobile">
+          <button type="button">Mobile capture</button>
+        </Link>
         <Link href="/ideas">
           <button type="button">View ideas</button>
         </Link>
@@ -32,6 +35,19 @@ export default async function HomePage() {
         <Link href="/jobs">
           <button type="button">View jobs</button>
         </Link>
+      </section>
+
+      <section className="card surface" style={{ marginTop: '1.5rem' }}>
+        <h2>Quick actions</h2>
+        <p className="small-text">Jump straight into idea capture or review your latest thoughts.</p>
+        <div className="button-grid" style={{ marginTop: '1rem' }}>
+          <Link href="/mobile">
+            <button type="button">Travel capture</button>
+          </Link>
+          <Link href="/ideas">
+            <button type="button">Recent ideas</button>
+          </Link>
+        </div>
       </section>
     </main>
   );

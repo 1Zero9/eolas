@@ -52,6 +52,7 @@ model Idea {
   status     IdeaStatus     @default(INBOX)
   source     IdeaSource     @default(WEB)
   analyses   IdeaAnalysis[]
+  notes      IdeaNote[]
   project    Project?       @relation()
   jobs       Job[]
   createdAt  DateTime       @default(now())
@@ -59,6 +60,17 @@ model Idea {
 
   @@index([status])
   @@index([createdAt])
+}
+
+model IdeaNote {
+  id        String   @id @default(cuid())
+  ideaId    String
+  content   String   @db.Text
+  idea      Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([ideaId, createdAt])
 }
 
 model IdeaAnalysis {
