@@ -32,13 +32,20 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
 
   return (
     <main>
-      <section className="card surface">
+      <section className="card surface hero-card">
         <h1>{idea.title ?? 'Untitled idea'}</h1>
+        <p className="small-text">Inspect the full idea, review previous notes, and take it further from here.</p>
+      </section>
+
+      <section className="card surface" style={{ marginTop: '1.5rem' }}>
         <p>{idea.rawCapture}</p>
         {idea.summary ? <p className="small-text">{idea.summary}</p> : null}
-        <p className="small-text">Status: {idea.status}</p>
-        <p className="small-text">Source: {idea.source}</p>
-        <p className="small-text">Created: {idea.createdAt.toLocaleString()}</p>
+        <div className="meta-row" style={{ marginTop: '1rem' }}>
+          <span className="status-pill">{idea.status}</span>
+          <span className="status-pill">Source: {idea.source}</span>
+          <span className="status-pill">Created: {idea.createdAt.toLocaleString()}</span>
+        </div>
+
         <div className="button-grid" style={{ marginTop: '1.5rem' }}>
           <form action={`/api/ideas/${idea.id}/analyse`} method="post">
             <button type="submit">Analyse idea</button>
@@ -51,9 +58,11 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
 
       <IdeaIterations ideaId={idea.id} />
 
-      <div style={{ marginTop: '1.5rem' }}>
-        <Link href="/ideas">Back to ideas</Link>
-      </div>
+      <section style={{ marginTop: '1.5rem' }}>
+        <Link href="/ideas" className="button-secondary" style={{ padding: '0.85rem 1.3rem', display: 'inline-block' }}>
+          Back to ideas
+        </Link>
+      </section>
     </main>
   );
 }

@@ -56,51 +56,53 @@ export default function MobileCapturePage() {
 
   return (
     <main>
-      <section className="card surface">
+      <section className="card surface hero-card">
         <h1>Mobile capture</h1>
         <p className="small-text">Quickly log ideas, iterations, and travel thoughts while you're on the go.</p>
       </section>
 
-      <section className="card" style={{ marginTop: '1.5rem' }}>
-        <label>
-          Idea text
-          <textarea
-            value={rawCapture}
-            onChange={(event) => setRawCapture(event.target.value)}
-            placeholder="What are you thinking about?"
-            rows={6}
-            required
-            className="mobile-input"
-          />
-        </label>
+      <section className="card surface" style={{ marginTop: '1.5rem' }}>
+        <div className="form-grid">
+          <label>
+            Idea text
+            <textarea
+              value={rawCapture}
+              onChange={(event) => setRawCapture(event.target.value)}
+              placeholder="What are you thinking about?"
+              rows={6}
+              required
+              className="mobile-input"
+            />
+          </label>
 
-        <label>
-          Optional title
-          <input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Short title"
-            className="mobile-input"
-          />
-        </label>
+          <label>
+            Optional title
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Short title"
+              className="mobile-input"
+            />
+          </label>
 
-        <label>
-          Optional summary
-          <textarea
-            value={summary}
-            onChange={(event) => setSummary(event.target.value)}
-            placeholder="Add a quick summary"
-            rows={4}
-            className="mobile-input"
-          />
-        </label>
+          <label>
+            Optional summary
+            <textarea
+              value={summary}
+              onChange={(event) => setSummary(event.target.value)}
+              placeholder="Add a quick summary"
+              rows={4}
+              className="mobile-input"
+            />
+          </label>
 
-        {error ? <p style={{ color: '#B91C1C' }}>{error}</p> : null}
-        {success ? <p style={{ color: '#15803D' }}>Idea saved successfully.</p> : null}
+          {error ? <p style={{ color: '#B91C1C' }}>{error}</p> : null}
+          {success ? <p style={{ color: '#15803D' }}>Idea saved successfully.</p> : null}
 
-        <button type="button" onClick={handleSubmit} disabled={submitting || !rawCapture.trim()}>
-          {submitting ? 'Saving…' : 'Save idea'}
-        </button>
+          <button type="button" onClick={handleSubmit} disabled={submitting || !rawCapture.trim()}>
+            {submitting ? 'Saving…' : 'Save idea'}
+          </button>
+        </div>
       </section>
     </main>
   );

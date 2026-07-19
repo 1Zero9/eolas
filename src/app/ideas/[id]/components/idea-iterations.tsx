@@ -54,18 +54,23 @@ export default function IdeaIterations({ ideaId }: { ideaId: string }) {
       <h2>History & iterations</h2>
       <p className="small-text">Log travel thoughts, refinements, and follow-up updates as a timeline.</p>
 
-      <textarea
-        value={note}
-        onChange={(event) => setNote(event.target.value)}
-        rows={5}
-        placeholder="Add your next iteration or observation"
-        className="mobile-input"
-      />
+      <div className="form-grid" style={{ marginTop: '1rem' }}>
+        <label>
+          Add your next iteration or observation
+          <textarea
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            rows={5}
+            placeholder="Add your next iteration or observation"
+            className="mobile-input"
+          />
+        </label>
 
-      <div className="button-grid" style={{ marginTop: '1rem' }}>
-        <button type="button" onClick={addNote} disabled={saving || !note.trim()}>
-          {saving ? 'Saving…' : 'Add note'}
-        </button>
+        <div className="button-grid">
+          <button type="button" onClick={addNote} disabled={saving || !note.trim()}>
+            {saving ? 'Saving…' : 'Add note'}
+          </button>
+        </div>
       </div>
 
       {error ? <p style={{ color: '#B91C1C', marginTop: '1rem' }}>{error}</p> : null}
@@ -74,7 +79,7 @@ export default function IdeaIterations({ ideaId }: { ideaId: string }) {
         {notes.length === 0 ? (
           <p className="small-text">No iterations yet. Capture your first thought.</p>
         ) : (
-          notes.map((noteItem, index) => (
+          notes.map((noteItem) => (
             <div key={noteItem.id} className="timeline-event">
               <div className="timeline-marker" />
               <div className="timeline-content">

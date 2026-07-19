@@ -258,6 +258,27 @@ Rules:
 - Never include real credentials in documentation
 - Store local worker secrets in macOS Keychain
 - Use separate development, preview and production credentials
+
+---
+
+## 6. What has been built so far
+
+The app currently contains:
+
+- Mobile-first idea capture at `/mobile`
+- Idea list and detail pages with iteration notes
+- PWA support with offline service worker registration
+- Idea promotion/job queue scaffolding and worker APIs
+- A simple auth gate for protected routes
+- A clean current UI with improved cards, forms, and button styling ready for polish
+
+## 7. Next priorities
+
+1. Finish the worker execution loop and approval workflow.
+2. Implement secure local workspace creation for promoted ideas.
+3. Add Git/GitHub backup integration once the local worker path is stable.
+4. Harden auth, routes, and API validation.
+5. Use this repository state to discuss next steps with ChatGPT.
 - Prefer a GitHub App over a broad personal access token
 - Use least-privilege permissions
 

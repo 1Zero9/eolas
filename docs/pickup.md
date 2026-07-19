@@ -21,10 +21,11 @@
 2. Implement secure local workspace creation for approved promotions.
 3. Validate the entire app with TypeScript and production build.
 4. Harden routes, auth, and worker security.
-5. Add a lightweight `docs/` or `PICKUP.md` workflow folder once the next work cycle begins.
+5. Use this note in ChatGPT to discuss the next implementation steps and roadmap.
 
 ## Notes
 
 - Keep `.env.local` out of source control.
 - Focus on a safe approval flow before local file system or Git operations.
 - Continue the current loop: idea capture → inbox → promote → local job.
+- Documentation now lives under `docs/`, with `docs/build-plan.md` and `docs/pickup.md`.

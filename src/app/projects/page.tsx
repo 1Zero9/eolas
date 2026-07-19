@@ -18,21 +18,38 @@ export default async function ProjectsPage() {
 
   return (
     <main>
-      <h1>Projects</h1>
+      <section className="card surface hero-card">
+        <h1>Projects</h1>
+        <p className="small-text">Track the workspaces you’ve promoted from ideas and see progress at a glance.</p>
+      </section>
+
       {projects.length === 0 ? (
-        <p>No projects yet. Promote an idea to create a project.</p>
+        <section className="card surface" style={{ marginTop: '1.5rem' }}>
+          <p>No projects yet. Promote an idea to create a project.</p>
+        </section>
       ) : (
-        projects.map((project) => (
-          <div key={project.id} className="card">
-            <h2>{project.name}</h2>
-            <p>Slug: {project.slug}</p>
-            <p>Status: {project.status}</p>
-            <p>{project.description}</p>
-            <Link href={`/projects/${project.id}`}>Open project</Link>
-          </div>
-        ))
+        <section className="card-grid" style={{ marginTop: '1.5rem' }}>
+          {projects.map((project) => (
+            <div key={project.id} className="card surface">
+              <h2>{project.name}</h2>
+              <div className="meta-row" style={{ marginTop: '0.85rem' }}>
+                <span className="status-pill">Slug: {project.slug}</span>
+                <span className="status-pill">Status: {project.status}</span>
+              </div>
+              <p>{project.description}</p>
+              <Link href={`/projects/${project.id}`} className="button-secondary" style={{ display: 'inline-block', marginTop: '1rem', padding: '0.75rem 1rem' }}>
+                Open project
+              </Link>
+            </div>
+          ))}
+        </section>
       )}
-      <Link href="/">Back home</Link>
+
+      <section style={{ marginTop: '1.5rem' }}>
+        <Link href="/" className="button-secondary" style={{ padding: '0.85rem 1.3rem', display: 'inline-block' }}>
+          Back home
+        </Link>
+      </section>
     </main>
   );
 }

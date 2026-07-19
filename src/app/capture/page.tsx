@@ -56,52 +56,57 @@ export default function CapturePage() {
 
   return (
     <main>
-      <h1>Capture idea</h1>
-      <p>Quick capture from mobile with a clear path to review.</p>
+      <section className="card surface hero-card">
+        <h1>Capture idea</h1>
+        <p className="small-text">Quick capture from mobile with a clear path to review.</p>
+      </section>
 
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          void handleSubmit();
-        }}
-      >
-        <label>
-          Idea text
-          <textarea
-            value={rawCapture}
-            onChange={(event) => setRawCapture(event.target.value)}
-            placeholder="What are you thinking about?"
-            rows={6}
-            required
-          />
-        </label>
+      <section className="card surface" style={{ marginTop: '1.5rem' }}>
+        <form
+          className="form-grid"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleSubmit();
+          }}
+        >
+          <label>
+            Idea text
+            <textarea
+              value={rawCapture}
+              onChange={(event) => setRawCapture(event.target.value)}
+              placeholder="What are you thinking about?"
+              rows={6}
+              required
+            />
+          </label>
 
-        <label>
-          Optional title
-          <input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Short title"
-          />
-        </label>
+          <label>
+            Optional title
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Short title"
+            />
+          </label>
 
-        <label>
-          Optional summary
-          <textarea
-            value={summary}
-            onChange={(event) => setSummary(event.target.value)}
-            placeholder="Add a quick summary"
-            rows={3}
-          />
-        </label>
+          <label>
+            Optional summary
+            <textarea
+              value={summary}
+              onChange={(event) => setSummary(event.target.value)}
+              placeholder="Add a quick summary"
+              rows={3}
+            />
+          </label>
 
-        {error ? <p style={{ color: '#B91C1C' }}>{error}</p> : null}
-        {success ? <p style={{ color: '#15803D' }}>Idea saved successfully.</p> : null}
+          {error ? <p style={{ color: '#B91C1C' }}>{error}</p> : null}
+          {success ? <p style={{ color: '#15803D' }}>Idea saved successfully.</p> : null}
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Saving…' : 'Save idea'}
-        </button>
-      </form>
+          <button type="submit" disabled={submitting}>
+            {submitting ? 'Saving…' : 'Save idea'}
+          </button>
+        </form>
+      </section>
     </main>
   );
 }

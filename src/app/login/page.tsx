@@ -29,20 +29,26 @@ export default function LoginPage() {
 
   return (
     <main>
-      <h1>Sign in</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Enter password"
-          />
-        </label>
-        {error ? <p style={{ color: '#B91C1C' }}>{error}</p> : null}
-        <button type="submit">Continue</button>
-      </form>
+      <section className="card surface hero-card">
+        <h1>Sign in</h1>
+        <p className="small-text">Access your Eolas workspace securely.</p>
+      </section>
+
+      <section className="card surface" style={{ marginTop: '1.5rem' }}>
+        <form className="form-grid" onSubmit={handleSubmit}>
+          <label>
+            Password
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Enter password"
+            />
+          </label>
+          {error ? <p style={{ color: '#B91C1C' }}>{error}</p> : null}
+          <button type="submit">Continue</button>
+        </form>
+      </section>
     </main>
   );
 }
