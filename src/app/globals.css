@@ -1,25 +1,25 @@
 :root {
   color-scheme: dark;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --background: #0B0F14;
-  --surface: #141B23;
-  --surface-alt: #1D2630;
-  --border: #2B3642;
-  --text-primary: #E6ECF3;
-  --text-secondary: #9AA4B2;
-  --text-muted: #7C8894;
-  --primary: #00FF9D;
-  --primary-light: #00E5FF;
-  --primary-dark: #00B377;
-  --accent: #FFD60A;
+  --background: #030611;
+  --surface: #0D1328;
+  --surface-alt: #131B34;
+  --border: #263250;
+  --text-primary: #F7FAFF;
+  --text-secondary: #C7D2E5;
+  --text-muted: #8E9BB5;
+  --primary: #22D9FF;
+  --primary-light: #8255FF;
+  --primary-dark: #3A7BFF;
+  --accent: #FFD84A;
   --accent-light: #FFE873;
-  --accent-dark: #FF8A00;
-  --purple: #8A2CFF;
-  --pink: #FF2CF0;
-  --danger: #FF3B5C;
-  --ink: #06110D;
+  --accent-dark: #FF8A1F;
+  --purple: #8255FF;
+  --pink: #FF37D1;
+  --danger: #FF4D6D;
+  --ink: #050816;
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
-  --glow-primary: 0 0 0 4px rgba(0, 255, 157, 0.16);
+  --glow-primary: 0 0 0 4px rgba(34, 217, 255, 0.16);
   --radius: 1.5rem;
 }
 
@@ -39,9 +39,9 @@ html, body {
 body {
   font: 16px Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background:
-    radial-gradient(circle at 10% 0%, rgba(0, 255, 157, 0.08), transparent 24%),
-    radial-gradient(circle at 85% 8%, rgba(138, 44, 255, 0.1), transparent 22%),
-    radial-gradient(circle at 50% 100%, rgba(0, 229, 255, 0.05), transparent 30%),
+    radial-gradient(circle at 10% 0%, rgba(34, 217, 255, 0.08), transparent 24%),
+    radial-gradient(circle at 85% 8%, rgba(180, 60, 255, 0.1), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(130, 85, 255, 0.05), transparent 30%),
     var(--background);
   color: var(--text-primary);
 }
@@ -61,7 +61,7 @@ main {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(11, 15, 20, 0.82);
+  background: rgba(3, 6, 17, 0.82);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
@@ -91,12 +91,12 @@ main {
   height: 42px;
   display: block;
   transition: transform 0.25s ease, filter 0.25s ease;
-  filter: drop-shadow(0 0 10px rgba(0, 255, 157, 0.35));
+  filter: drop-shadow(0 0 10px rgba(34, 217, 255, 0.35));
 }
 
 .brand:hover img {
   transform: rotate(-8deg) scale(1.05);
-  filter: drop-shadow(0 0 16px rgba(0, 229, 255, 0.5));
+  filter: drop-shadow(0 0 16px rgba(130, 85, 255, 0.5));
 }
 
 .app-nav {
@@ -122,7 +122,7 @@ main {
 }
 
 .app-nav a.active {
-  background: rgba(0, 255, 157, 0.12);
+  background: rgba(34, 217, 255, 0.12);
   color: var(--primary);
   font-weight: 600;
 }
@@ -132,7 +132,7 @@ main {
   color: var(--ink);
   font-weight: 700;
   margin-left: 0.5rem;
-  box-shadow: 0 8px 22px rgba(0, 255, 157, 0.25);
+  box-shadow: 0 8px 22px rgba(34, 217, 255, 0.25);
 }
 
 .app-nav .nav-cta:hover,
@@ -207,14 +207,14 @@ button {
   color: var(--ink);
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 16px 30px rgba(0, 255, 157, 0.2);
+  box-shadow: 0 16px 30px rgba(34, 217, 255, 0.2);
 }
 
 button:hover,
 button:focus-visible {
   background: linear-gradient(135deg, var(--primary-light), var(--primary));
   transform: translateY(-1px);
-  box-shadow: 0 20px 38px rgba(0, 229, 255, 0.28);
+  box-shadow: 0 20px 38px rgba(130, 85, 255, 0.28);
   outline: none;
 }
 
@@ -227,34 +227,34 @@ button:disabled {
 .button-secondary {
   background: transparent;
   color: var(--primary);
-  border: 1px solid rgba(0, 255, 157, 0.35);
+  border: 1px solid rgba(34, 217, 255, 0.35);
   box-shadow: none;
 }
 
 .button-secondary:hover,
 .button-secondary:focus-visible {
-  background: rgba(0, 255, 157, 0.08);
+  background: rgba(34, 217, 255, 0.08);
   color: var(--primary-light);
   box-shadow: none;
 }
 
 .button-danger {
   background: transparent;
-  color: #FF7A93;
-  border: 1px solid rgba(255, 59, 92, 0.4);
+  color: #FF87A0;
+  border: 1px solid rgba(255, 77, 109, 0.4);
   box-shadow: none;
 }
 
 .button-danger:hover,
 .button-danger:focus-visible {
-  background: rgba(255, 59, 92, 0.1);
-  color: #FF7A93;
+  background: rgba(255, 77, 109, 0.1);
+  color: #FF87A0;
   box-shadow: none;
 }
 
 button:active {
   transform: translateY(0) scale(0.97);
-  box-shadow: 0 8px 16px rgba(0, 255, 157, 0.18);
+  box-shadow: 0 8px 16px rgba(34, 217, 255, 0.18);
 }
 
 input[type='submit'],
@@ -268,7 +268,7 @@ button[type='submit'] {
   height: 1em;
   vertical-align: -0.15em;
   margin-right: 0.5em;
-  border: 2px solid rgba(6, 17, 13, 0.35);
+  border: 2px solid rgba(5, 8, 22, 0.35);
   border-top-color: var(--ink);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -295,15 +295,15 @@ button[type='submit'] {
 }
 
 .alert-success {
-  background: rgba(0, 255, 157, 0.08);
-  border: 1px solid rgba(0, 255, 157, 0.3);
+  background: rgba(34, 217, 255, 0.08);
+  border: 1px solid rgba(34, 217, 255, 0.3);
   color: var(--primary);
 }
 
 .alert-error {
-  background: rgba(255, 59, 92, 0.1);
-  border: 1px solid rgba(255, 59, 92, 0.3);
-  color: #FF7A93;
+  background: rgba(255, 77, 109, 0.1);
+  border: 1px solid rgba(255, 77, 109, 0.3);
+  color: #FF87A0;
 }
 
 @keyframes fade-slide-in {
@@ -319,7 +319,7 @@ button[type='submit'] {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: rgba(6, 10, 14, 0.65);
+  background: rgba(3, 6, 17, 0.65);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   animation: fade-slide-in 0.2s ease;
@@ -383,7 +383,7 @@ button[type='submit'] {
 
 .note-delete:hover,
 .note-delete:focus-visible {
-  color: #FF7A93;
+  color: #FF87A0;
   background: transparent;
   box-shadow: none;
   transform: none;
@@ -404,13 +404,13 @@ button[type='submit'] {
 
 .card:hover {
   transform: translateY(-1px);
-  border-color: rgba(0, 255, 157, 0.25);
+  border-color: rgba(34, 217, 255, 0.25);
 }
 
 .hero-card {
   background:
-    radial-gradient(circle at 0% 0%, rgba(0, 255, 157, 0.1), transparent 45%),
-    radial-gradient(circle at 100% 0%, rgba(138, 44, 255, 0.12), transparent 45%),
+    radial-gradient(circle at 0% 0%, rgba(34, 217, 255, 0.1), transparent 45%),
+    radial-gradient(circle at 100% 0%, rgba(180, 60, 255, 0.12), transparent 45%),
     var(--surface);
 }
 
@@ -426,7 +426,7 @@ button[type='submit'] {
   align-items: center;
   padding: 0.45rem 0.85rem;
   border-radius: 999px;
-  background: rgba(0, 229, 255, 0.1);
+  background: rgba(130, 85, 255, 0.1);
   color: var(--text-secondary);
   font-size: 0.95rem;
 }
@@ -456,7 +456,7 @@ button[type='submit'] {
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(0, 255, 157, 0.3);
+  border-color: rgba(34, 217, 255, 0.3);
 }
 
 .stat-value {
@@ -534,7 +534,7 @@ button[type='submit'] {
 }
 
 .timeline {
-  border-left: 2px solid rgba(0, 255, 157, 0.25);
+  border-left: 2px solid rgba(34, 217, 255, 0.25);
   padding-left: 1rem;
 }
 
@@ -551,7 +551,7 @@ button[type='submit'] {
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
   margin-top: 0.35rem;
-  box-shadow: 0 0 0 5px rgba(11, 15, 20, 0.9), 0 0 12px rgba(0, 255, 157, 0.5);
+  box-shadow: 0 0 0 5px rgba(3, 6, 17, 0.9), 0 0 12px rgba(34, 217, 255, 0.5);
 }
 
 .timeline-content {
@@ -604,7 +604,7 @@ button[type='submit'] {
   align-items: flex-end;
   gap: 0.35rem;
   padding: 0.5rem 0.9rem;
-  background: rgba(20, 27, 35, 0.92);
+  background: rgba(19, 27, 52, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border);
@@ -637,7 +637,7 @@ button[type='submit'] {
 
 .dock a.active {
   color: var(--primary);
-  background: rgba(0, 255, 157, 0.12);
+  background: rgba(34, 217, 255, 0.12);
 }
 
 .dock .dock-fab {
@@ -649,7 +649,7 @@ button[type='submit'] {
   justify-content: center;
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
   color: var(--ink);
-  box-shadow: 0 12px 28px rgba(0, 255, 157, 0.4);
+  box-shadow: 0 12px 28px rgba(34, 217, 255, 0.4);
 }
 
 .dock .dock-fab svg {
