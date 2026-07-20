@@ -4,6 +4,7 @@ import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { getIdea } from '@/src/lib/ideas/idea-service';
 import IdeaIterations from '@/src/app/ideas/[id]/components/idea-iterations';
 import IdeaControls from '@/src/app/ideas/[id]/components/idea-controls';
+import IdeaActions from '@/src/app/ideas/[id]/components/idea-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,14 +48,7 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
           <span className="status-pill">Created: {idea.createdAt.toLocaleString()}</span>
         </div>
 
-        <div className="button-grid" style={{ marginTop: '1.5rem' }}>
-          <form action={`/api/ideas/${idea.id}/analyse`} method="post">
-            <button type="submit">Analyse idea</button>
-          </form>
-          <form action={`/api/ideas/${idea.id}/promote`} method="post">
-            <button type="submit">Promote to project</button>
-          </form>
-        </div>
+        <IdeaActions ideaId={idea.id} />
       </section>
 
       <IdeaIterations ideaId={idea.id} />
