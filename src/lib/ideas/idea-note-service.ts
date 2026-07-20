@@ -2,7 +2,7 @@ import { prisma } from '@/src/lib/db';
 import { z } from 'zod';
 
 export const ideaNoteCreateSchema = z.object({
-  content: z.string().trim().min(1, 'Note content is required').max(2000),
+  content: z.string().trim().min(1, 'Note content is required').max(8000),
 });
 
 export async function createIdeaNote(ideaId: string, input: unknown) {

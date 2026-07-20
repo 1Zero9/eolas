@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIdea } from '@/src/lib/ideas/idea-service';
 import { listIdeaNotes } from '@/src/lib/ideas/idea-note-service';
-import { prisma } from '@/src/lib/db';
 import { requireAuth } from '@/src/lib/auth';
 import { buildBrainstormPrompt, generateGeminiText, GeminiConfigError } from '@/src/lib/ai/gemini';
-
-const AI_NOTE_PREFIX = '🤖 AI brainstorm\n\n';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const authError = requireAuth(request);
@@ -28,14 +25,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     const text = await generateGeminiText(prompt);
 
-    const note = await prisma.ideaNote.create({
-      data: {
-        ideaId: params.id,
-        content: `${AI_NOTE_PREFIX}${text}`,
-      },
-    });
-
-    return NextResponse.json(note, { status: 201 });
+    return NextResponse.json({ text });
   } catch (error) {
     const status = error instanceof GeminiConfigError ? 503 : 400;
     return NextResponse.json(
