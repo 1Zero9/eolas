@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Modal from '@/src/app/components/modal';
 
 export default function CapturePage() {
   const router = useRouter();
@@ -102,11 +103,6 @@ export default function CapturePage() {
           </label>
 
           {error ? <div className="alert alert-error" role="alert">⚠ {error}</div> : null}
-          {savedId ? (
-            <div className="alert alert-success" role="status">
-              ✓ Idea captured. <Link href={`/ideas/${savedId}`}>Open it</Link> or keep going.
-            </div>
-          ) : null}
 
           <button type="submit" disabled={submitting || !rawCapture.trim()}>
             {submitting ? (
@@ -120,6 +116,21 @@ export default function CapturePage() {
           </button>
         </form>
       </section>
+
+      <Modal open={!!savedId} onClose={() => setSavedId(null)}>
+        <h2>✓ Idea captured</h2>
+        <p>Saved successfully. Open it now or keep capturing.</p>
+        <div className="modal-actions">
+          <button type="button" className="button-secondary" onClick={() => setSavedId(null)}>
+            OK
+          </button>
+          {savedId ? (
+            <Link href={`/ideas/${savedId}`}>
+              <button type="button">Open it</button>
+            </Link>
+          ) : null}
+        </div>
+      </Modal>
     </main>
   );
 }
