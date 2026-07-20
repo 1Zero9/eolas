@@ -45,6 +45,18 @@ export async function updateIdea(id: string, input: Partial<IdeaCreateInput>) {
   });
 }
 
+export const ideaWorkspaceSchema = z.object({
+  workspace: z.string().trim().max(20000).optional().or(z.literal('')),
+});
+
+export async function updateIdeaWorkspace(id: string, input: unknown) {
+  const parsed = ideaWorkspaceSchema.parse(input);
+  return prisma.idea.update({
+    where: { id },
+    data: { workspace: parsed.workspace || null },
+  });
+}
+
 export async function changeIdeaStatus(id: string, status: 'INBOX' | 'ANALYSING' | 'ASSESSED' | 'READY' | 'QUEUED' | 'BUILDING' | 'POC' | 'MVP' | 'PARKED' | 'REJECTED') {
   return prisma.idea.update({
     where: { id },

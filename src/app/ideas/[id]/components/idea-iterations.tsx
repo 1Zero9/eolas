@@ -1,163 +1,137 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
-const AI_NOTE_PREFIX = '🤖 AI brainstorm\n\n';
-const NOTE_MAX_LENGTH = 8000;
+const WORKSPACE_MAX_LENGTH = 20000;
+const SUGGESTION_MAX_LENGTH = 4000;
 
-type Note = { id: string; content: string; createdAt: string };
+type LegacyNote = { content: string };
 
-export default function IdeaIterations({ ideaId }: { ideaId: string }) {
-  const [note, setNote] = useState('');
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [error, setError] = useState<string | null>(null);
+function seedFromLegacyNotes(notes: LegacyNote[]) {
+  if (!notes.length) return '';
+  const chronological = [...notes].reverse();
+  return chronological
+    .map((note) => note.content.replace(/^🤖 AI brainstorm\n\n/, '').trim())
+    .filter(Boolean)
+    .join('\n\n');
+}
+
+export default function IdeaWorkspace({
+  ideaId,
+  initialWorkspace,
+  initialNotes,
+}: {
+  ideaId: string;
+  initialWorkspace: string | null;
+  initialNotes: LegacyNote[];
+}) {
+  const [content, setContent] = useState(
+    () => initialWorkspace || seedFromLegacyNotes(initialNotes),
+  );
+  const [savedContent, setSavedContent] = useState(content);
   const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const [brainstorming, setBrainstorming] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<string | null>(null);
-  const [savingDraft, setSavingDraft] = useState(false);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const busyRef = useRef(false);
 
-  useEffect(() => {
-    void fetch(`/api/ideas/${ideaId}/notes`).then(async (response) => {
-      if (!response.ok) {
-        setError('Unable to load notes');
-        return;
-      }
-      const payload = await response.json();
-      setNotes(payload || []);
-    });
-  }, [ideaId]);
+  const isDirty = content !== savedContent;
 
-  async function addNote() {
-    if (!note.trim()) {
-      return;
-    }
-
+  async function saveWorkspace(nextContent: string) {
     setSaving(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/ideas/${ideaId}/notes`, {
-        method: 'POST',
+      const response = await fetch(`/api/ideas/${ideaId}/workspace`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: note }),
+        body: JSON.stringify({ workspace: nextContent }),
       });
 
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
-        throw new Error(payload.error || 'Unable to save note');
+        throw new Error(payload.error || 'Unable to save workspace');
       }
 
-      const saved = await response.json();
-      setNotes((prev) => [saved, ...prev]);
-      setNote('');
+      setSavedContent(nextContent);
+      setSavedAt(Date.now());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to save note');
+      setError(err instanceof Error ? err.message : 'Unable to save workspace');
     } finally {
       setSaving(false);
     }
   }
 
   async function brainstormWithAI() {
+    if (busyRef.current) return;
+    busyRef.current = true;
     setBrainstorming(true);
     setError(null);
-    setDraft(null);
+    setSuggestion(null);
 
     try {
-      const response = await fetch(`/api/ideas/${ideaId}/brainstorm`, { method: 'POST' });
+      const response = await fetch(`/api/ideas/${ideaId}/brainstorm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace: content }),
+      });
       const payload = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         throw new Error(payload.error || 'Unable to brainstorm idea');
       }
 
-      setDraft(payload.text || '');
+      setSuggestion((payload.text || '').slice(0, SUGGESTION_MAX_LENGTH));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to brainstorm idea');
     } finally {
       setBrainstorming(false);
+      busyRef.current = false;
     }
   }
 
-  async function saveDraftAsNote() {
-    if (!draft || !draft.trim()) return;
-
-    setSavingDraft(true);
-    setError(null);
-
-    try {
-      const content = `${AI_NOTE_PREFIX}${draft}`.slice(0, NOTE_MAX_LENGTH);
-      const response = await fetch(`/api/ideas/${ideaId}/notes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(payload.error || 'Unable to save note');
-      }
-
-      const saved = await response.json();
-      setNotes((prev) => [saved, ...prev]);
-      setDraft(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to save note');
-    } finally {
-      setSavingDraft(false);
-    }
+  function insertSuggestion() {
+    if (!suggestion || !suggestion.trim()) return;
+    const merged = (content ? `${content}\n\n${suggestion.trim()}` : suggestion.trim()).slice(
+      0,
+      WORKSPACE_MAX_LENGTH,
+    );
+    setContent(merged);
+    setSuggestion(null);
+    void saveWorkspace(merged);
   }
 
-  async function deleteNote(noteId: string) {
-    setDeletingId(noteId);
-    setError(null);
-
-    try {
-      const response = await fetch(`/api/ideas/${ideaId}/notes/${noteId}`, { method: 'DELETE' });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(payload.error || 'Unable to delete note');
-      }
-
-      setNotes((prev) => prev.filter((item) => item.id !== noteId));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to delete note');
-    } finally {
-      setDeletingId(null);
-    }
-  }
+  const savedLabel = useMemo(() => {
+    if (!savedAt) return null;
+    return 'Saved';
+  }, [savedAt]);
 
   return (
     <section className="card surface" style={{ marginTop: '1.5rem' }}>
-      <h2>History & iterations</h2>
-      <p className="small-text">Log travel thoughts, refinements, and follow-up updates as a timeline.</p>
+      <h2>Idea workspace</h2>
+      <p className="small-text">
+        The incubator for this idea — capture, explore and refine your thinking here before it moves anywhere.
+      </p>
 
       <div className="form-grid" style={{ marginTop: '1rem' }}>
         <label>
-          Add your next iteration or observation
+          Working notes
           <textarea
-            value={note}
-            onChange={(event) => setNote(event.target.value.slice(0, NOTE_MAX_LENGTH))}
-            rows={5}
-            placeholder="Add your next iteration or observation"
+            value={content}
+            onChange={(event) => setContent(event.target.value.slice(0, WORKSPACE_MAX_LENGTH))}
+            rows={14}
+            placeholder="Explore the idea here — problem framing, features, risks, next steps…"
             className="mobile-input"
           />
           <span className="small-text" style={{ textAlign: 'right' }}>
-            {note.length} / {NOTE_MAX_LENGTH}
+            {content.length} / {WORKSPACE_MAX_LENGTH}
           </span>
         </label>
 
         <div className="button-grid">
-          <button type="button" onClick={addNote} disabled={saving || !note.trim()}>
-            {saving ? (
-              <>
-                <span className="spinner" aria-hidden="true" />
-                Saving…
-              </>
-            ) : (
-              'Add note'
-            )}
+          <button type="button" onClick={() => saveWorkspace(content)} disabled={saving || !isDirty}>
+            {saving ? 'Saving…' : isDirty ? 'Save workspace' : savedLabel || 'Save workspace'}
           </button>
           <button type="button" className="button-secondary" onClick={brainstormWithAI} disabled={brainstorming}>
             {brainstorming ? (
@@ -178,65 +152,28 @@ export default function IdeaIterations({ ideaId }: { ideaId: string }) {
         </div>
       ) : null}
 
-      {draft !== null ? (
+      {suggestion !== null ? (
         <div className="card note-ai" style={{ marginTop: '1.5rem', padding: '1.25rem' }}>
           <div className="note-header">
-            <span className="status-pill">✨ AI brainstorm — review before saving</span>
+            <span className="status-pill">✨ AI suggestion — review before adding</span>
           </div>
           <textarea
-            value={draft}
-            onChange={(event) => setDraft(event.target.value.slice(0, NOTE_MAX_LENGTH))}
-            rows={12}
+            value={suggestion}
+            onChange={(event) => setSuggestion(event.target.value.slice(0, SUGGESTION_MAX_LENGTH))}
+            rows={6}
             className="mobile-input"
             style={{ marginTop: '0.75rem' }}
           />
-          <span className="small-text" style={{ display: 'block', textAlign: 'right', marginTop: '0.3rem' }}>
-            {draft.length} / {NOTE_MAX_LENGTH}
-          </span>
           <div className="button-grid" style={{ marginTop: '0.75rem' }}>
-            <button type="button" onClick={saveDraftAsNote} disabled={savingDraft || !draft.trim()}>
-              {savingDraft ? 'Saving…' : 'Add as note'}
+            <button type="button" onClick={insertSuggestion} disabled={!suggestion.trim() || saving}>
+              Add to workspace
             </button>
-            <button type="button" className="button-secondary" onClick={() => setDraft(null)}>
+            <button type="button" className="button-secondary" onClick={() => setSuggestion(null)}>
               Discard
             </button>
           </div>
         </div>
       ) : null}
-
-      <div className="timeline" style={{ marginTop: '1.5rem' }}>
-        {notes.length === 0 ? (
-          <p className="small-text">No iterations yet. Capture your first thought.</p>
-        ) : (
-          notes.map((noteItem) => {
-            const isAi = noteItem.content.startsWith(AI_NOTE_PREFIX.trim());
-            const content = isAi
-              ? noteItem.content.slice(AI_NOTE_PREFIX.trim().length).trim()
-              : noteItem.content;
-
-            return (
-              <div key={noteItem.id} className="timeline-event">
-                <div className="timeline-marker" />
-                <div className={`timeline-content${isAi ? ' note-ai' : ''}`}>
-                  <div className="note-header">
-                    {isAi ? <span className="status-pill">✨ AI brainstorm</span> : <span />}
-                    <button
-                      type="button"
-                      className="note-delete"
-                      onClick={() => deleteNote(noteItem.id)}
-                      disabled={deletingId === noteItem.id}
-                    >
-                      {deletingId === noteItem.id ? 'Removing…' : 'Delete'}
-                    </button>
-                  </div>
-                  <p style={{ whiteSpace: 'pre-wrap' }}>{content}</p>
-                  <p className="small-text">{new Date(noteItem.createdAt).toLocaleString()}</p>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
     </section>
   );
 }

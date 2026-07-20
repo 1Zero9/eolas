@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIdea } from '@/src/lib/ideas/idea-service';
-import { listIdeaNotes } from '@/src/lib/ideas/idea-note-service';
 import { requireAuth } from '@/src/lib/auth';
 import { buildBrainstormPrompt, generateGeminiText, GeminiConfigError } from '@/src/lib/ai/gemini';
 
@@ -15,12 +14,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 
   try {
-    const notes = await listIdeaNotes(params.id);
+    const body = await request.json().catch(() => ({}));
+    const workspace = typeof body?.workspace === 'string' ? body.workspace : idea.workspace;
+
     const prompt = buildBrainstormPrompt({
       title: idea.title,
       rawCapture: idea.rawCapture,
       summary: idea.summary,
-      notes,
+      workspace,
     });
 
     const text = await generateGeminiText(prompt);

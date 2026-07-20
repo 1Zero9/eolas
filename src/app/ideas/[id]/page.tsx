@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { getIdea } from '@/src/lib/ideas/idea-service';
-import IdeaIterations from '@/src/app/ideas/[id]/components/idea-iterations';
+import { listIdeaNotes } from '@/src/lib/ideas/idea-note-service';
+import IdeaWorkspace from '@/src/app/ideas/[id]/components/idea-iterations';
 import IdeaControls from '@/src/app/ideas/[id]/components/idea-controls';
 import IdeaActions from '@/src/app/ideas/[id]/components/idea-actions';
 
@@ -32,6 +33,8 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
     );
   }
 
+  const legacyNotes = idea.workspace ? [] : await listIdeaNotes(idea.id);
+
   return (
     <main>
       <section className="card surface hero-card">
@@ -51,7 +54,7 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
         <IdeaActions ideaId={idea.id} />
       </section>
 
-      <IdeaIterations ideaId={idea.id} />
+      <IdeaWorkspace ideaId={idea.id} initialWorkspace={idea.workspace} initialNotes={legacyNotes} />
 
       <IdeaControls ideaId={idea.id} />
 

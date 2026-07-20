@@ -49,6 +49,7 @@ model Idea {
   title      String?
   rawCapture String         @db.Text
   summary    String?        @db.Text
+  workspace  String?        @db.Text
   status     IdeaStatus     @default(INBOX)
   source     IdeaSource     @default(WEB)
   analyses   IdeaAnalysis[]

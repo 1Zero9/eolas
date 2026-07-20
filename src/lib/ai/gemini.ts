@@ -14,7 +14,7 @@ function getConfig() {
   return { apiKey, model };
 }
 
-export async function generateGeminiText(prompt: string): Promise<string> {
+export async function generateGeminiText(prompt: string, maxOutputTokens = 400): Promise<string> {
   const { apiKey, model } = getConfig();
 
   const response = await fetch(
@@ -24,6 +24,7 @@ export async function generateGeminiText(prompt: string): Promise<string> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens, temperature: 0.7 },
       }),
     },
   );
@@ -48,28 +49,23 @@ export function buildBrainstormPrompt(idea: {
   title?: string | null;
   rawCapture: string;
   summary?: string | null;
-  notes: Array<{ content: string }>;
+  workspace?: string | null;
 }) {
-  const notesBlock = idea.notes.length
-    ? idea.notes.map((note, index) => `${index + 1}. ${note.content}`).join('\n')
-    : 'No notes yet.';
-
   return [
-    'You are a sharp, practical product brainstorming partner.',
-    'Given the raw idea below, help develop it further.',
+    'You are a sharp, practical product brainstorming partner helping develop an early-stage idea inside its "incubator" workspace document.',
     '',
     `Title: ${idea.title || 'Untitled idea'}`,
     `Idea: ${idea.rawCapture}`,
     idea.summary ? `Summary: ${idea.summary}` : '',
     '',
-    'Prior notes/iterations:',
-    notesBlock,
+    idea.workspace
+      ? `Current workspace notes (already written, do not repeat this back):\n${idea.workspace}`
+      : 'The workspace is empty so far — this is the first pass.',
     '',
-    'Respond concisely in this structure:',
-    '- Sharper problem statement (1-2 sentences)',
-    '- 3-5 concrete feature/capability ideas',
-    '- 2-3 open questions or risks to resolve',
-    '- Recommended next step',
+    'Add the next useful increment of thinking, building on the workspace above rather than restating it.',
+    'Be brief and concrete. Hard limit: under 120 words total.',
+    'Plain text only, short bullet points, no headings, no markdown.',
+    'Pick ONE of the following angles, whichever moves the idea forward most right now: sharper problem framing, a concrete feature idea, a risk/open question, or a suggested next step.',
   ]
     .filter(Boolean)
     .join('\n');
