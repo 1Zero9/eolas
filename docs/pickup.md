@@ -23,6 +23,12 @@
 4. Harden routes, auth, and worker security.
 5. Use this note in ChatGPT to discuss the next implementation steps and roadmap.
 
+## ⚠️ Security follow-up (raised ~19 Jul, do not forget)
+
+- Real secrets (`AUTH_PASSWORD`, `EOLAS_WORKER_SECRET`) were accidentally committed to `.env.example` and pushed to the **public** GitHub repo (commit `b129e79`).
+- TODO: rotate both values in Vercel + local `.env`/worker config, and revert `.env.example` to placeholders.
+- Old values are permanently exposed in git history on a public repo regardless of rotation — consider whether that matters for your use case.
+
 ## Notes
 
 - Keep `.env.local` out of source control.
