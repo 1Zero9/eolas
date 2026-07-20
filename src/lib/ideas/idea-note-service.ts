@@ -22,3 +22,13 @@ export async function listIdeaNotes(ideaId: string) {
     orderBy: { createdAt: 'desc' },
   });
 }
+
+export async function deleteIdeaNote(ideaId: string, noteId: string) {
+  const note = await prisma.ideaNote.findUnique({ where: { id: noteId } });
+
+  if (!note || note.ideaId !== ideaId) {
+    throw new Error('Note not found');
+  }
+
+  return prisma.ideaNote.delete({ where: { id: noteId } });
+}

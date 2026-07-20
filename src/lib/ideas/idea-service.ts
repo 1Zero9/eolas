@@ -51,3 +51,37 @@ export async function changeIdeaStatus(id: string, status: 'INBOX' | 'ANALYSING'
     data: { status },
   });
 }
+
+export async function deleteIdea(id: string) {
+  return prisma.idea.delete({ where: { id } });
+}
+
+export async function mergeIdeas(targetId: string, sourceId: string) {
+  if (targetId === sourceId) {
+    throw new Error('Cannot merge an idea with itself');
+  }
+
+  const [target, source] = await Promise.all([
+    prisma.idea.findUnique({ where: { id: targetId } }),
+    prisma.idea.findUnique({ where: { id: sourceId } }),
+  ]);
+
+  if (!target) throw new Error('Target idea not found');
+  if (!source) throw new Error('Source idea not found');
+
+  await prisma.$transaction([
+    prisma.ideaNote.create({
+      data: {
+        ideaId: targetId,
+        content: `🔀 Merged idea "${source.title || 'Untitled idea'}":\n\n${source.rawCapture}${source.summary ? `\n\nSummary: ${source.summary}` : ''}`,
+      },
+    }),
+    prisma.ideaNote.updateMany({
+      where: { ideaId: sourceId },
+      data: { ideaId: targetId },
+    }),
+    prisma.idea.delete({ where: { id: sourceId } }),
+  ]);
+
+  return getIdea(targetId);
+}

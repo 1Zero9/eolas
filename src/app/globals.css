@@ -238,6 +238,20 @@ button:disabled {
   box-shadow: none;
 }
 
+.button-danger {
+  background: transparent;
+  color: #FF7A93;
+  border: 1px solid rgba(255, 59, 92, 0.4);
+  box-shadow: none;
+}
+
+.button-danger:hover,
+.button-danger:focus-visible {
+  background: rgba(255, 59, 92, 0.1);
+  color: #FF7A93;
+  box-shadow: none;
+}
+
 button:active {
   transform: translateY(0) scale(0.97);
   box-shadow: 0 8px 16px rgba(0, 255, 157, 0.18);
@@ -342,6 +356,37 @@ button[type='submit'] {
 .modal-actions a {
   flex: 1;
   text-align: center;
+}
+
+.note-ai {
+  border-left: 2px solid var(--purple);
+  padding-left: 0.85rem;
+}
+
+.note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.note-delete {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--text-muted);
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.note-delete:hover,
+.note-delete:focus-visible {
+  color: #FF7A93;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
 }
 
 .card,

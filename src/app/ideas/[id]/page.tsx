@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { getIdea } from '@/src/lib/ideas/idea-service';
 import IdeaIterations from '@/src/app/ideas/[id]/components/idea-iterations';
+import IdeaControls from '@/src/app/ideas/[id]/components/idea-controls';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +58,8 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
       </section>
 
       <IdeaIterations ideaId={idea.id} />
+
+      <IdeaControls ideaId={idea.id} />
 
       <section style={{ marginTop: '1.5rem' }}>
         <Link href="/ideas" className="button-secondary" style={{ padding: '0.85rem 1.3rem', display: 'inline-block' }}>
