@@ -1,0 +1,6 @@
+{
+  "name": "Digital clock (triangle numerals)",
+  "description": "A digital clock and countdown timer where every digit is rendered as faceted SVG triangles instead of plain segments — a Predator-style triangular numeral display. Supports a live clock mode and a countdown-timer mode with start/pause/reset.",
+  "category": "UI Components",
+  "capabilities": ["clock", "countdown-timer", "svg", "react", "client-component"]
+}

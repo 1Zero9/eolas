@@ -1,0 +1,6 @@
+{
+  "name": "Prisma + Postgres starter",
+  "description": "Prisma client singleton safe for Next.js dev hot-reload, plus the datasource block for a Postgres-backed app.",
+  "category": "Data layer",
+  "capabilities": ["database", "postgres", "prisma", "next.js"]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "AI provider wrapper (Gemini)",
+  "description": "Minimal fetch-based wrapper around the Gemini generateContent API with typed config/request errors, ready to plug prompt builders into.",
+  "category": "AI",
+  "capabilities": ["ai", "gemini", "text-generation"]
+}

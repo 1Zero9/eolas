@@ -1,6 +1,10 @@
 import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
-import { listAccelerators, listDiscoveredAccelerators } from '@/src/lib/accelerators/accelerator-service';
+import {
+  listAccelerators,
+  listDiscoveredAccelerators,
+  getAcceleratorsByIds,
+} from '@/src/lib/accelerators/accelerator-service';
 import DiscoveredAccelerators from '@/src/app/accelerators/discovered-accelerators';
 
 export const dynamic = 'force-dynamic';
@@ -12,11 +16,12 @@ export default async function AcceleratorsPage() {
     redirect('/login');
   }
 
-  let accelerators = [] as Awaited<ReturnType<typeof listAccelerators>>;
+  let accelerators = [] as Awaited<ReturnType<typeof getAcceleratorsByIds>>;
   let discovered = [] as Awaited<ReturnType<typeof listDiscoveredAccelerators>>;
 
   try {
-    accelerators = await listAccelerators();
+    const summaries = await listAccelerators();
+    accelerators = await getAcceleratorsByIds(summaries.map((accelerator) => accelerator.slug));
   } catch {
     accelerators = [];
   }
@@ -49,35 +54,29 @@ export default async function AcceleratorsPage() {
       ) : (
         <section className="card surface" style={{ marginTop: '1.5rem' }}>
           <div className="timeline">
-            {accelerators.map((accelerator) => {
-              const capabilities = Array.isArray(accelerator.capabilities)
-                ? (accelerator.capabilities as string[])
-                : [];
-              const files = Array.isArray(accelerator.files)
-                ? (accelerator.files as { path: string }[])
-                : [];
-
-              return (
-                <div key={accelerator.id} className="timeline-event">
-                  <div className="timeline-marker" />
-                  <div className="timeline-content">
-                    <h2>{accelerator.name}</h2>
-                    <p>{accelerator.description}</p>
-                    <div className="meta-row">
-                      <span className="status-pill">{accelerator.category}</span>
-                      {capabilities.map((capability) => (
-                        <span key={capability} className="status-pill">
-                          {capability}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="small-text" style={{ marginTop: '0.75rem' }}>
-                      Files: {files.map((file) => file.path).join(', ')}
-                    </p>
+            {accelerators.map((accelerator) => (
+              <div key={accelerator.id} className="timeline-event">
+                <div className="timeline-marker" />
+                <div className="timeline-content">
+                  <h2>{accelerator.name}</h2>
+                  <p>{accelerator.description}</p>
+                  <div className="meta-row">
+                    <span className="status-pill">{accelerator.category}</span>
+                    {accelerator.capabilities.map((capability) => (
+                      <span key={capability} className="status-pill">
+                        {capability}
+                      </span>
+                    ))}
                   </div>
+                  <p className="small-text" style={{ marginTop: '0.75rem' }}>
+                    Files: {accelerator.files.map((file) => file.path).join(', ')}
+                  </p>
+                  <p className="small-text" style={{ marginTop: '0.25rem' }}>
+                    Source: <code>accelerators/{accelerator.slug}/</code>
+                  </p>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </section>
       )}

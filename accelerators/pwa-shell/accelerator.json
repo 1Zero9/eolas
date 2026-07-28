@@ -1,0 +1,6 @@
+{
+  "name": "PWA shell",
+  "description": "Installable PWA baseline: web app manifest, offline-first service worker with stale-while-revalidate caching, and a client-side registration component.",
+  "category": "Mobile / PWA",
+  "capabilities": ["pwa", "offline", "service-worker", "installable"]
+}

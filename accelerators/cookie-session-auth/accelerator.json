@@ -1,0 +1,6 @@
+{
+  "name": "Cookie session auth",
+  "description": "Single-password, cookie-based auth gate for a small internal app. Protects routes and API endpoints with a simple httpOnly session cookie, no user table required.",
+  "category": "Authentication",
+  "capabilities": ["auth", "single-user", "cookie-session", "next.js"]
+}

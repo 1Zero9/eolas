@@ -50,8 +50,9 @@ export default function DiscoveredAccelerators({
     <section className="card surface" style={{ marginTop: '1.5rem' }}>
       <h2>Discovered — needs review</h2>
       <p className="small-text">
-        Found by scanning your local project repos. Approve to make these available when promoting ideas, or
-        dismiss if not useful.
+        Found by scanning your local project repos. These are staging candidates only — approving marks a
+        candidate as reviewed, but it won&apos;t appear in the promote picker until its code is committed as a
+        real <code>accelerators/&lt;slug&gt;/</code> folder in git. Dismiss if not useful.
       </p>
 
       {error ? (

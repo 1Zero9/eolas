@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getIdea } from '@/src/lib/ideas/idea-service';
 import { createProjectFromIdea } from '@/src/lib/projects/project-service';
 import { createJob } from '@/src/lib/jobs/job-service';
-import { getAcceleratorsByIds, type AcceleratorFile } from '@/src/lib/accelerators/accelerator-service';
+import { getAcceleratorsByIds } from '@/src/lib/accelerators/accelerator-service';
 import { requireAuth } from '@/src/lib/auth';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
@@ -47,10 +47,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
   const files = new Map<string, string>();
   for (const accelerator of accelerators) {
-    const acceleratorFiles = Array.isArray(accelerator.files)
-      ? (accelerator.files as unknown as AcceleratorFile[])
-      : [];
-    for (const file of acceleratorFiles) {
+    for (const file of accelerator.files) {
       files.set(file.path, file.content);
     }
   }
