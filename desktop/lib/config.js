@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { app } = require('electron');
 
 function parseEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return {};
@@ -31,7 +32,11 @@ function parseEnvFile(filePath) {
 }
 
 function loadConfig() {
-  const fileValues = parseEnvFile(path.join(__dirname, '..', '.env'));
+  const userDataEnvPath = path.join(app.getPath('userData'), '.env');
+  const devEnvPath = path.join(__dirname, '..', '.env');
+  const fileValues = fs.existsSync(userDataEnvPath)
+    ? parseEnvFile(userDataEnvPath)
+    : parseEnvFile(devEnvPath);
 
   const cloudUrl = process.env.EOLAS_CLOUD_URL || fileValues.EOLAS_CLOUD_URL || 'http://localhost:3000';
   const desktopSecret = process.env.EOLAS_DESKTOP_SECRET || fileValues.EOLAS_DESKTOP_SECRET;

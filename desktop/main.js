@@ -6,10 +6,12 @@ const { loadState, saveState } = require('./lib/state');
 
 const config = loadConfig();
 const statePath = path.join(app.getPath('userData'), 'state.json');
-const scanScriptPath = path.join(__dirname, '..', 'scripts', 'scan-accelerators.js');
+const scanScriptPath = app.isPackaged
+  ? path.join(process.resourcesPath, 'scripts', 'scan-accelerators.js')
+  : path.join(__dirname, '..', 'scripts', 'scan-accelerators.js');
 
 let tray = null;
-let unseenIdeas = [];
+let unseenItems = [];
 let lastError = null;
 let pollTimer = null;
 let scanning = false;
@@ -25,46 +27,56 @@ function relativeTime(isoString) {
   return `${days}d ago`;
 }
 
-function snippet(idea) {
+function ideaSnippet(idea) {
   const title = idea.title && idea.title.trim() ? idea.title.trim() : idea.rawCapture.trim();
   return title.length > 60 ? `${title.slice(0, 57)}...` : title;
 }
 
-function ideaUrl(idea) {
-  return `${config.cloudUrl}/ideas/${idea.id}`;
+function itemUrl(item) {
+  return item.kind === 'accelerator' ? `${config.cloudUrl}/accelerators` : `${config.cloudUrl}/ideas/${item.id}`;
+}
+
+function itemLabel(item) {
+  if (item.kind === 'accelerator') {
+    const state = item.status === 'DISCOVERED' ? 'Discovered' : 'Accelerator';
+    return `${state}: ${item.name}`;
+  }
+  return `Idea: ${ideaSnippet(item)}`;
 }
 
 function updateTray() {
   if (!tray) return;
 
-  tray.setTitle(unseenIdeas.length > 0 ? ` ${unseenIdeas.length}` : '');
+  tray.setTitle(unseenItems.length > 0 ? ` ${unseenItems.length}` : '');
 
   const tooltipLines = [];
   if (lastError) {
     tooltipLines.push(`Eolas — offline (${lastError})`);
   } else {
-    tooltipLines.push(unseenIdeas.length > 0 ? `Eolas — ${unseenIdeas.length} new idea(s)` : 'Eolas — up to date');
+    tooltipLines.push(unseenItems.length > 0 ? `Eolas — ${unseenItems.length} new item(s)` : 'Eolas — up to date');
   }
   tray.setToolTip(tooltipLines.join('\n'));
 
-  const ideaMenuItems = unseenIdeas.slice(0, 10).map((idea) => ({
-    label: `${snippet(idea)}  ·  ${relativeTime(idea.createdAt)}`,
-    click: () => shell.openExternal(ideaUrl(idea)),
+  const itemMenuItems = unseenItems.slice(0, 12).map((item) => ({
+    label: `${itemLabel(item)}  ·  ${relativeTime(item.createdAt)}`,
+    click: () => shell.openExternal(itemUrl(item)),
   }));
+
+  const loginItemSettings = app.getLoginItemSettings();
 
   const menu = Menu.buildFromTemplate([
     {
-      label: lastError ? `Offline — ${lastError}` : `${unseenIdeas.length} new idea(s) captured`,
+      label: lastError ? `Offline — ${lastError}` : `${unseenItems.length} new item(s)`,
       enabled: false,
     },
     { type: 'separator' },
-    ...(ideaMenuItems.length > 0 ? ideaMenuItems : [{ label: 'No new captures', enabled: false }]),
+    ...(itemMenuItems.length > 0 ? itemMenuItems : [{ label: 'No new activity', enabled: false }]),
     { type: 'separator' },
     {
       label: 'Mark all as seen',
-      enabled: unseenIdeas.length > 0,
+      enabled: unseenItems.length > 0,
       click: () => {
-        unseenIdeas = [];
+        unseenItems = [];
         updateTray();
       },
     },
@@ -81,6 +93,15 @@ function updateTray() {
       label: scanning ? 'Scanning projects…' : 'Scan Projects for Accelerators',
       enabled: !scanning,
       click: () => void runScan(),
+    },
+    { type: 'separator' },
+    {
+      label: 'Launch at Login',
+      type: 'checkbox',
+      checked: loginItemSettings.openAtLogin,
+      click: (menuItem) => {
+        app.setLoginItemSettings({ openAtLogin: menuItem.checked });
+      },
     },
     { type: 'separator' },
     { label: 'Quit Eolas Desktop', role: 'quit' },
@@ -107,29 +128,45 @@ async function poll() {
 
     const payload = await response.json();
     const ideas = Array.isArray(payload.ideas) ? payload.ideas : [];
+    const accelerators = Array.isArray(payload.accelerators) ? payload.accelerators : [];
 
     const state = loadState(statePath);
-    const knownIds = new Set(state.knownIds);
-    const freshIdeas = ideas.filter((idea) => !knownIds.has(idea.id));
+    const knownIdeaIds = new Set(state.knownIdeaIds);
+    const knownAcceleratorIds = new Set(state.knownAcceleratorIds);
+
+    const freshIdeas = ideas.filter((idea) => !knownIdeaIds.has(idea.id));
+    const freshAccelerators = accelerators.filter((accelerator) => !knownAcceleratorIds.has(accelerator.id));
 
     lastError = null;
 
-    if (freshIdeas.length > 0) {
-      unseenIdeas = [...freshIdeas, ...unseenIdeas];
+    const freshItems = [
+      ...freshIdeas.map((idea) => ({ kind: 'idea', ...idea })),
+      ...freshAccelerators.map((accelerator) => ({ kind: 'accelerator', ...accelerator })),
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-      if (freshIdeas.length === 1) {
+    if (freshItems.length > 0) {
+      unseenItems = [...freshItems, ...unseenItems];
+
+      if (freshItems.length === 1) {
+        const item = freshItems[0];
         new Notification({
-          title: 'New idea captured',
-          body: snippet(freshIdeas[0]),
+          title: item.kind === 'accelerator' ? 'New accelerator' : 'New idea captured',
+          body: itemLabel(item),
         }).show();
       } else {
+        const parts = [];
+        if (freshIdeas.length > 0) parts.push(`${freshIdeas.length} idea(s)`);
+        if (freshAccelerators.length > 0) parts.push(`${freshAccelerators.length} accelerator(s)`);
         new Notification({
-          title: 'New ideas captured',
-          body: `${freshIdeas.length} new ideas landed in your Eolas inbox.`,
+          title: 'New activity in Eolas',
+          body: parts.join(' and '),
         }).show();
       }
 
-      saveState(statePath, { knownIds: [...state.knownIds, ...freshIdeas.map((idea) => idea.id)] });
+      saveState(statePath, {
+        knownIdeaIds: [...state.knownIdeaIds, ...freshIdeas.map((idea) => idea.id)],
+        knownAcceleratorIds: [...state.knownAcceleratorIds, ...freshAccelerators.map((accelerator) => accelerator.id)],
+      });
     }
   } catch (error) {
     lastError = error instanceof Error ? error.message : 'Unknown error';
@@ -179,6 +216,8 @@ function runScan() {
       title: 'Project scan complete',
       body: lastLine,
     }).show();
+
+    void poll();
   });
 }
 

@@ -27,6 +27,14 @@ export async function listDiscoveredAccelerators() {
   });
 }
 
+export async function listRecentAccelerators(limit = 25) {
+  return prisma.accelerator.findMany({
+    where: { status: { in: ['APPROVED', 'DISCOVERED'] } },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  });
+}
+
 export type DiscoveredAcceleratorInput = {
   name: string;
   slug: string;
