@@ -1,0 +1,13 @@
+{
+  "name": "eolas-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Eolas Desktop — macOS menu bar indicator for newly captured ideas.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^32.2.0"
+  }
+}

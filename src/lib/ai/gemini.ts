@@ -70,3 +70,26 @@ export function buildBrainstormPrompt(idea: {
     .filter(Boolean)
     .join('\n');
 }
+
+export function buildBuildBriefPrompt(idea: {
+  title?: string | null;
+  rawCapture: string;
+  summary?: string | null;
+  workspace?: string | null;
+}) {
+  return [
+    'You are a pragmatic technical product lead writing a build brief that will be handed directly to an AI coding agent to build a first version of this idea.',
+    '',
+    `Title: ${idea.title || 'Untitled idea'}`,
+    `Idea: ${idea.rawCapture}`,
+    idea.summary ? `Summary: ${idea.summary}` : '',
+    idea.workspace ? `Incubator workspace notes so far:\n${idea.workspace}` : '',
+    '',
+    'Write a build brief as GitHub-flavoured markdown with exactly these headings, in this order: "## Problem", "## Target users", "## Core features (v1)", "## Out of scope (v1)", "## Suggested tech approach", "## Open questions".',
+    'Under "Core features (v1)" use a short bullet list of concrete, buildable features — not vague goals.',
+    'Under "Suggested tech approach" recommend a simple, sensible stack/architecture for a first version, considering this is likely a small solo-built app.',
+    'Keep the whole document under 350 words. No preamble, no closing remarks — output only the markdown starting at "## Problem".',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}

@@ -1,12 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 type Analysis = {
   generatedTitle: string | null;
   generatedSummary: string | null;
   recommendedNextAction: string | null;
+};
+
+type Accelerator = {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string;
 };
 
 export default function IdeaActions({ ideaId }: { ideaId: string }) {
@@ -16,6 +23,22 @@ export default function IdeaActions({ ideaId }: { ideaId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [promoted, setPromoted] = useState(false);
+  const [accelerators, setAccelerators] = useState<Accelerator[]>([]);
+  const [selectedAcceleratorIds, setSelectedAcceleratorIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    void fetch('/api/accelerators').then(async (response) => {
+      if (!response.ok) return;
+      const payload: Accelerator[] = await response.json();
+      setAccelerators(payload);
+    });
+  }, []);
+
+  function toggleAccelerator(id: string) {
+    setSelectedAcceleratorIds((current) =>
+      current.includes(id) ? current.filter((existing) => existing !== id) : [...current, id],
+    );
+  }
 
   async function handleAnalyse() {
     setAnalysing(true);
@@ -43,7 +66,11 @@ export default function IdeaActions({ ideaId }: { ideaId: string }) {
     setError(null);
 
     try {
-      const response = await fetch(`/api/ideas/${ideaId}/promote`, { method: 'POST' });
+      const response = await fetch(`/api/ideas/${ideaId}/promote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acceleratorIds: selectedAcceleratorIds }),
+      });
       const payload = await response.json().catch(() => ({}));
 
       if (!response.ok) {
@@ -72,6 +99,30 @@ export default function IdeaActions({ ideaId }: { ideaId: string }) {
             'Analyse idea'
           )}
         </button>
+      </div>
+
+      {accelerators.length > 0 ? (
+        <div className="form-grid" style={{ marginTop: '1.5rem' }}>
+          <span className="small-text">Include accelerators when promoting</span>
+          {accelerators.map((accelerator) => (
+            <label key={accelerator.id} className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={selectedAcceleratorIds.includes(accelerator.id)}
+                onChange={() => toggleAccelerator(accelerator.id)}
+              />
+              <span>
+                <strong>{accelerator.name}</strong>
+                {accelerator.description ? (
+                  <span className="small-text"> — {accelerator.description}</span>
+                ) : null}
+              </span>
+            </label>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="button-grid" style={{ marginTop: '1rem' }}>
         <button type="button" className="button-secondary" onClick={handlePromote} disabled={promoting}>
           {promoting ? (
             <>

@@ -57,6 +57,18 @@ export async function updateIdeaWorkspace(id: string, input: unknown) {
   });
 }
 
+export const ideaBuildBriefSchema = z.object({
+  buildBrief: z.string().trim().max(20000).optional().or(z.literal('')),
+});
+
+export async function updateIdeaBuildBrief(id: string, input: unknown) {
+  const parsed = ideaBuildBriefSchema.parse(input);
+  return prisma.idea.update({
+    where: { id },
+    data: { buildBrief: parsed.buildBrief || null },
+  });
+}
+
 export async function changeIdeaStatus(id: string, status: 'INBOX' | 'ANALYSING' | 'ASSESSED' | 'READY' | 'QUEUED' | 'BUILDING' | 'POC' | 'MVP' | 'PARKED' | 'REJECTED') {
   return prisma.idea.update({
     where: { id },

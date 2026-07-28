@@ -4,6 +4,7 @@ import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { getIdea } from '@/src/lib/ideas/idea-service';
 import { listIdeaNotes } from '@/src/lib/ideas/idea-note-service';
 import IdeaWorkspace from '@/src/app/ideas/[id]/components/idea-iterations';
+import IdeaBuildBrief from '@/src/app/ideas/[id]/components/idea-build-brief';
 import IdeaControls from '@/src/app/ideas/[id]/components/idea-controls';
 import IdeaActions from '@/src/app/ideas/[id]/components/idea-actions';
 
@@ -55,6 +56,8 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
       </section>
 
       <IdeaWorkspace ideaId={idea.id} initialWorkspace={idea.workspace} initialNotes={legacyNotes} />
+
+      <IdeaBuildBrief ideaId={idea.id} initialBuildBrief={idea.buildBrief} />
 
       <IdeaControls ideaId={idea.id} />
 

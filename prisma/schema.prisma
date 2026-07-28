@@ -50,6 +50,7 @@ model Idea {
   rawCapture String         @db.Text
   summary    String?        @db.Text
   workspace  String?        @db.Text
+  buildBrief String?        @db.Text
   status     IdeaStatus     @default(INBOX)
   source     IdeaSource     @default(WEB)
   analyses   IdeaAnalysis[]
@@ -175,4 +176,20 @@ model JobEvent {
   createdAt DateTime @default(now())
 
   @@index([jobId, createdAt])
+}
+
+model Accelerator {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String?  @db.Text
+  category     String
+  capabilities Json
+  files        Json
+  status       String   @default("APPROVED")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+  @@index([category])
 }
