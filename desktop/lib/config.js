@@ -35,9 +35,17 @@ function loadConfig() {
 
   const cloudUrl = process.env.EOLAS_CLOUD_URL || fileValues.EOLAS_CLOUD_URL || 'http://localhost:3000';
   const desktopSecret = process.env.EOLAS_DESKTOP_SECRET || fileValues.EOLAS_DESKTOP_SECRET;
+  const workerSecret = process.env.EOLAS_WORKER_SECRET || fileValues.EOLAS_WORKER_SECRET;
+  const projectRoot = process.env.EOLAS_PROJECT_ROOT || fileValues.EOLAS_PROJECT_ROOT;
   const pollIntervalMs = Number(process.env.EOLAS_DESKTOP_POLL_MS || fileValues.EOLAS_DESKTOP_POLL_MS || 60000);
 
-  return { cloudUrl: cloudUrl.replace(/\/$/, ''), desktopSecret, pollIntervalMs };
+  return {
+    cloudUrl: cloudUrl.replace(/\/$/, ''),
+    desktopSecret,
+    workerSecret,
+    projectRoot,
+    pollIntervalMs,
+  };
 }
 
 module.exports = { loadConfig };

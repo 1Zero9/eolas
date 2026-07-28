@@ -1,15 +1,18 @@
 const path = require('path');
+const { execFile } = require('child_process');
 const { app, Tray, Menu, Notification, shell, nativeImage } = require('electron');
 const { loadConfig } = require('./lib/config');
 const { loadState, saveState } = require('./lib/state');
 
 const config = loadConfig();
 const statePath = path.join(app.getPath('userData'), 'state.json');
+const scanScriptPath = path.join(__dirname, '..', 'scripts', 'scan-accelerators.js');
 
 let tray = null;
 let unseenIdeas = [];
 let lastError = null;
 let pollTimer = null;
+let scanning = false;
 
 function relativeTime(isoString) {
   const diffMs = Date.now() - new Date(isoString).getTime();
@@ -74,6 +77,11 @@ function updateTray() {
       label: 'Check now',
       click: () => void poll(),
     },
+    {
+      label: scanning ? 'Scanning projects…' : 'Scan Projects for Accelerators',
+      enabled: !scanning,
+      click: () => void runScan(),
+    },
     { type: 'separator' },
     { label: 'Quit Eolas Desktop', role: 'quit' },
   ]);
@@ -128,6 +136,50 @@ async function poll() {
   }
 
   updateTray();
+}
+
+function runScan() {
+  if (scanning) return;
+
+  if (!config.workerSecret) {
+    new Notification({
+      title: 'Cannot scan projects',
+      body: 'Set EOLAS_WORKER_SECRET in desktop/.env to enable project scanning.',
+    }).show();
+    return;
+  }
+
+  scanning = true;
+  updateTray();
+
+  const env = {
+    ...process.env,
+    EOLAS_CLOUD_URL: config.cloudUrl,
+    EOLAS_WORKER_SECRET: config.workerSecret,
+  };
+
+  if (config.projectRoot) {
+    env.EOLAS_PROJECT_ROOT = config.projectRoot;
+  }
+
+  execFile('node', [scanScriptPath], { env }, (error, stdout, stderr) => {
+    scanning = false;
+    updateTray();
+
+    if (error) {
+      new Notification({
+        title: 'Project scan failed',
+        body: (stderr || error.message).slice(0, 200),
+      }).show();
+      return;
+    }
+
+    const lastLine = stdout.trim().split('\n').filter(Boolean).pop() || 'Scan complete.';
+    new Notification({
+      title: 'Project scan complete',
+      body: lastLine,
+    }).show();
+  });
 }
 
 function startPolling() {

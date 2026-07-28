@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
-import { listAccelerators } from '@/src/lib/accelerators/accelerator-service';
+import { listAccelerators, listDiscoveredAccelerators } from '@/src/lib/accelerators/accelerator-service';
+import DiscoveredAccelerators from '@/src/app/accelerators/discovered-accelerators';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,11 +13,18 @@ export default async function AcceleratorsPage() {
   }
 
   let accelerators = [] as Awaited<ReturnType<typeof listAccelerators>>;
+  let discovered = [] as Awaited<ReturnType<typeof listDiscoveredAccelerators>>;
 
   try {
     accelerators = await listAccelerators();
   } catch {
     accelerators = [];
+  }
+
+  try {
+    discovered = await listDiscoveredAccelerators();
+  } catch {
+    discovered = [];
   }
 
   return (
@@ -28,6 +36,8 @@ export default async function AcceleratorsPage() {
           Pick these when you promote an idea to a project.
         </p>
       </section>
+
+      <DiscoveredAccelerators accelerators={discovered} />
 
       {accelerators.length === 0 ? (
         <section className="card surface" style={{ marginTop: '1.5rem', textAlign: 'center', padding: '3rem 1.5rem' }}>

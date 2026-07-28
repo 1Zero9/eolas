@@ -10,6 +10,7 @@
     "test": "vitest run",
     "prisma": "prisma",
     "worker:start": "node ./worker/index.js",
+    "scan:accelerators": "node ./scripts/scan-accelerators.js",
     "desktop:start": "npm --prefix desktop install && npm --prefix desktop start"
   },
   "dependencies": {
