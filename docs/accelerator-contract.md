@@ -17,4 +17,6 @@ Reuse coverage means accelerator-originated implementation lines divided by all 
 
 To improve an accelerator, make a reviewed Git change and bump its version. Existing plans deliberately retain their original snapshot, so a later accelerator update cannot silently change an approved build.
 
+Run `npm run verify:accelerators` before approving catalogue changes. It creates temporary workspaces from the baseline alone and from the full current compatible set, then runs a real Next.js production build against each. The check does not install packages or change a project workspace.
+
 The discovery scanner deliberately sends only paths, sizes, and SHA-256 hashes to Eolas Cloud. It never uploads repository source code or credentials. Review candidates locally, then create a new reviewed accelerator in this repository when a pattern is worth preserving.

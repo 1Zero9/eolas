@@ -55,7 +55,7 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
           <span className="status-pill">Created: {idea.createdAt.toLocaleString()}</span>
         </div>
 
-        <IdeaActions ideaId={idea.id} />
+        <IdeaActions ideaId={idea.id} validationDecision={validations[0]?.decision ?? null} />
       </section>
 
       <IdeaWorkspace ideaId={idea.id} initialWorkspace={idea.workspace} initialNotes={legacyNotes} />

@@ -25,7 +25,7 @@ type AssemblyPlan = {
   reuseMetrics: { acceleratorReusePercent: number; acceleratorFiles: number; totalFiles: number; acceleratorLines: number; totalLines: number };
 };
 
-export default function IdeaActions({ ideaId }: { ideaId: string }) {
+export default function IdeaActions({ ideaId, validationDecision }: { ideaId: string; validationDecision: string | null }) {
   const router = useRouter();
   const [analysing, setAnalysing] = useState(false);
   const [promoting, setPromoting] = useState(false);
@@ -156,7 +156,7 @@ export default function IdeaActions({ ideaId }: { ideaId: string }) {
       ) : null}
 
       <div className="button-grid" style={{ marginTop: '1rem' }}>
-        <button type="button" className="button-secondary" onClick={handlePromote} disabled={promoting}>
+        <button type="button" className="button-secondary" onClick={handlePromote} disabled={promoting || validationDecision !== 'BUILD'}>
           {promoting ? (
             <>
               <span className="spinner" aria-hidden="true" />
@@ -167,6 +167,12 @@ export default function IdeaActions({ ideaId }: { ideaId: string }) {
           )}
         </button>
       </div>
+
+      {validationDecision !== 'BUILD' ? (
+        <p className="small-text" style={{ marginTop: '0.75rem' }}>
+          Record a <strong>Ready to build</strong> decision in the validation gate before creating an assembly plan.
+        </p>
+      ) : null}
 
       {error ? (
         <div className="alert alert-error" role="alert" style={{ marginTop: '1rem' }}>

@@ -34,6 +34,12 @@ Generate secrets with, for example:
 openssl rand -base64 48
 ```
 
+Environment assignments must use `NAME=value` with no whitespace around `=`. Check the local file without revealing its values:
+
+```bash
+npm run env:doctor
+```
+
 Apply migrations and start the web app:
 
 ```bash

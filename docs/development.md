@@ -20,7 +20,9 @@ worker/              Local worker process
 | `npm run dev` | Start Next.js development server |
 | `npm run build` | Generate Prisma client and produce production build |
 | `npm run db:migrate` | Apply checked-in Prisma migrations |
+| `npm run env:doctor` | Validate required local environment configuration without printing secrets |
 | `npm test` | Run Vitest tests |
+| `npm run verify:accelerators` | Build real temporary projects from approved accelerator combinations |
 | `npm run lint` | Run Next.js ESLint |
 | `npm run worker:start` | Start the local worker |
 | `npm run scan:accelerators` | Scan local Git repositories for metadata-only candidates |
@@ -43,6 +45,7 @@ Before a commit:
 npm test
 npx tsc --noEmit
 npm run lint
+npm run verify:accelerators
 npm run build
 git diff --check
 ```

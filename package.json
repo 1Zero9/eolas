@@ -9,6 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
+    "verify:accelerators": "node ./scripts/verify-accelerator-fixtures.js",
+    "env:doctor": "node ./scripts/check-env.js",
     "prisma": "prisma",
     "worker:start": "node ./worker/index.js",
     "scan:accelerators": "node ./scripts/scan-accelerators.js",
