@@ -74,6 +74,7 @@ export async function approveAssemblyPlan(id: string, approver: string) {
         data: {
           ideaId: plan.project.ideaId,
           projectId: plan.projectId,
+          organizationId: plan.project.organizationId,
           type: 'create_local_workspace',
           executionTarget: 'LOCAL_WORKER',
           requiresApproval: false,

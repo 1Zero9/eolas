@@ -23,6 +23,19 @@
   --radius: 1.5rem;
 }
 
+:root[data-theme='light'] {
+  color-scheme: light;
+  --background: #F5F8FF;
+  --surface: #FFFFFF;
+  --surface-alt: #E9EEFA;
+  --border: #CCD7ED;
+  --text-primary: #111A31;
+  --text-secondary: #43516F;
+  --text-muted: #6C7894;
+  --ink: #071224;
+  --shadow: 0 20px 50px rgba(48, 70, 120, 0.16);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -67,6 +80,8 @@ main {
   border-bottom: 1px solid var(--border);
 }
 
+:root[data-theme='light'] .app-header { background: rgba(255, 255, 255, 0.82); }
+
 .app-header-inner {
   max-width: 960px;
   margin: 0 auto;
@@ -85,6 +100,8 @@ main {
   font-size: 1.2rem;
   color: var(--text-primary);
 }
+
+.brand span { font-size: 0.7rem; letter-spacing: 0.08em; color: var(--text-muted); padding-left: 0.3rem; }
 
 .brand img {
   width: 42px;
@@ -140,6 +157,18 @@ main {
   background: linear-gradient(135deg, var(--primary-light), var(--primary));
   color: var(--ink);
 }
+
+.theme-toggle { padding: 0.45rem 0.65rem; min-width: 2.5rem; margin-left: 0.25rem; background: transparent; color: var(--text-secondary); border-color: var(--border); box-shadow: none; }
+.theme-toggle:hover { background: var(--surface-alt); color: var(--text-primary); box-shadow: none; }
+
+.capture-shell { min-height: 100vh; max-width: none; display: grid; place-items: center; padding: 1.5rem; background: radial-gradient(circle at 10% 0%, rgba(34, 217, 255, 0.14), transparent 34%), radial-gradient(circle at 95% 100%, rgba(130, 85, 255, 0.14), transparent 36%), var(--background); }
+.capture-card { width: min(100%, 38rem); padding: clamp(1.5rem, 6vw, 3rem); border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); border-radius: 2rem; }
+.capture-card h1 { margin-top: 0.7rem; font-size: clamp(2.2rem, 8vw, 4rem); }
+.capture-topline { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.capture-kicker { color: var(--primary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.13em; font-size: 0.8rem; }
+.workspace-list { display: grid; gap: 0.75rem; margin-top: 1rem; }
+.workspace-row { padding: 1rem; border: 1px solid var(--border); border-radius: 1rem; display: flex; gap: 1rem; align-items: center; justify-content: space-between; }
+.workspace-row p { margin-top: 0.25rem; }
 
 h1, h2, h3 {
   margin: 0;
@@ -623,7 +652,7 @@ button[type='submit'] {
   align-items: flex-end;
   gap: 0.35rem;
   padding: 0.5rem 0.9rem;
-  background: rgba(19, 27, 52, 0.92);
+  background: color-mix(in srgb, var(--surface-alt) 92%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border);

@@ -2,6 +2,7 @@ import { prisma } from '@/src/lib/db';
 import { z } from 'zod';
 
 export const jobCreateSchema = z.object({
+  organizationId: z.string().min(1),
   ideaId: z.string().cuid().optional(),
   projectId: z.string().cuid().optional(),
   type: z.string().min(1),
@@ -15,6 +16,7 @@ export async function createJob(input: z.infer<typeof jobCreateSchema>) {
   return prisma.job.create({
     data: {
       ideaId: parsed.ideaId,
+      organizationId: parsed.organizationId,
       projectId: parsed.projectId,
       type: parsed.type,
       executionTarget: parsed.executionTarget,

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { prisma } from '@/src/lib/db';
 import InstallPrompt from '@/src/app/components/install-prompt';
+import { requireActiveOrganization } from '@/src/lib/organizations/organization-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,7 @@ export default async function HomePage() {
   if (!authenticated) {
     redirect('/login');
   }
+  const organization = await requireActiveOrganization();
 
   let ideaCount = 0;
   let projectCount = 0;
@@ -28,11 +30,11 @@ export default async function HomePage() {
 
   try {
     [ideaCount, projectCount, jobCount, recentIdeas] = await Promise.all([
-      prisma.idea.count(),
-      prisma.project.count(),
-      prisma.job.count(),
+      prisma.idea.count({ where: { organizationId: organization.id } }),
+      prisma.project.count({ where: { organizationId: organization.id } }),
+      prisma.job.count({ where: { organizationId: organization.id } }),
       prisma.idea.findMany({
-        orderBy: { createdAt: 'desc' },
+        where: { organizationId: organization.id }, orderBy: { createdAt: 'desc' },
         take: 4,
         select: { id: true, title: true, rawCapture: true, createdAt: true },
       }),
@@ -43,7 +45,7 @@ export default async function HomePage() {
 
   try {
     const plans = await prisma.assemblyPlan.findMany({
-      where: { status: { in: ['APPROVED', 'EXECUTING', 'COMPLETED'] } },
+      where: { project: { organizationId: organization.id }, status: { in: ['APPROVED', 'EXECUTING', 'COMPLETED'] } },
       select: { reuseMetrics: true },
     });
     const values = plans.map((plan) => (plan.reuseMetrics as { acceleratorReusePercent?: unknown }).acceleratorReusePercent).filter((value): value is number => typeof value === 'number');
@@ -57,7 +59,7 @@ export default async function HomePage() {
       <section className="card surface hero-card">
         <h1>{greeting()} 👋</h1>
         <p>
-          Capture ideas the moment they land, iterate on them anywhere, then promote the best into
+          Workspace: <strong>{organization.name}</strong>. Capture ideas, iterate on them anywhere, then promote the best into
           local-first builds accelerated by pre-compiled elements.
         </p>
         <div className="button-grid">

@@ -10,10 +10,11 @@ export const ideaCreateSchema = z.object({
 
 export type IdeaCreateInput = z.infer<typeof ideaCreateSchema>;
 
-export async function createIdea(input: IdeaCreateInput) {
+export async function createIdea(organizationId: string, input: IdeaCreateInput) {
   const parsed = ideaCreateSchema.parse(input);
   return prisma.idea.create({
     data: {
+      organizationId,
       title: parsed.title || null,
       rawCapture: parsed.rawCapture,
       summary: parsed.summary || null,
@@ -22,18 +23,26 @@ export async function createIdea(input: IdeaCreateInput) {
   });
 }
 
-export async function listIdeas() {
+export async function listIdeas(organizationId: string) {
   return prisma.idea.findMany({
+    where: { organizationId },
     orderBy: { createdAt: 'desc' },
   });
 }
 
-export async function getIdea(id: string) {
-  return prisma.idea.findUnique({ where: { id } });
+export async function getIdea(id: string, organizationId: string) {
+  return prisma.idea.findFirst({ where: { id, organizationId } });
 }
 
-export async function updateIdea(id: string, input: Partial<IdeaCreateInput>) {
+async function requireIdea(id: string, organizationId: string) {
+  const idea = await getIdea(id, organizationId);
+  if (!idea) throw new Error('Idea not found');
+  return idea;
+}
+
+export async function updateIdea(id: string, organizationId: string, input: Partial<IdeaCreateInput>) {
   const parsed = ideaCreateSchema.partial().parse(input);
+  await requireIdea(id, organizationId);
   return prisma.idea.update({
     where: { id },
     data: {
@@ -49,8 +58,9 @@ export const ideaWorkspaceSchema = z.object({
   workspace: z.string().trim().max(20000).optional().or(z.literal('')),
 });
 
-export async function updateIdeaWorkspace(id: string, input: unknown) {
+export async function updateIdeaWorkspace(id: string, organizationId: string, input: unknown) {
   const parsed = ideaWorkspaceSchema.parse(input);
+  await requireIdea(id, organizationId);
   return prisma.idea.update({
     where: { id },
     data: { workspace: parsed.workspace || null },
@@ -61,33 +71,36 @@ export const ideaBuildBriefSchema = z.object({
   buildBrief: z.string().trim().max(20000).optional().or(z.literal('')),
 });
 
-export async function updateIdeaBuildBrief(id: string, input: unknown) {
+export async function updateIdeaBuildBrief(id: string, organizationId: string, input: unknown) {
   const parsed = ideaBuildBriefSchema.parse(input);
+  await requireIdea(id, organizationId);
   return prisma.idea.update({
     where: { id },
     data: { buildBrief: parsed.buildBrief || null },
   });
 }
 
-export async function changeIdeaStatus(id: string, status: 'INBOX' | 'ANALYSING' | 'ASSESSED' | 'READY' | 'QUEUED' | 'BUILDING' | 'POC' | 'MVP' | 'PARKED' | 'REJECTED') {
+export async function changeIdeaStatus(id: string, organizationId: string, status: 'INBOX' | 'ANALYSING' | 'ASSESSED' | 'READY' | 'QUEUED' | 'BUILDING' | 'POC' | 'MVP' | 'PARKED' | 'REJECTED') {
+  await requireIdea(id, organizationId);
   return prisma.idea.update({
     where: { id },
     data: { status },
   });
 }
 
-export async function deleteIdea(id: string) {
+export async function deleteIdea(id: string, organizationId: string) {
+  await requireIdea(id, organizationId);
   return prisma.idea.delete({ where: { id } });
 }
 
-export async function mergeIdeas(targetId: string, sourceId: string) {
+export async function mergeIdeas(targetId: string, sourceId: string, organizationId: string) {
   if (targetId === sourceId) {
     throw new Error('Cannot merge an idea with itself');
   }
 
   const [target, source] = await Promise.all([
-    prisma.idea.findUnique({ where: { id: targetId } }),
-    prisma.idea.findUnique({ where: { id: sourceId } }),
+    getIdea(targetId, organizationId),
+    getIdea(sourceId, organizationId),
   ]);
 
   if (!target) throw new Error('Target idea not found');
@@ -107,5 +120,5 @@ export async function mergeIdeas(targetId: string, sourceId: string) {
     prisma.idea.delete({ where: { id: sourceId } }),
   ]);
 
-  return getIdea(targetId);
+  return getIdea(targetId, organizationId);
 }

@@ -22,6 +22,10 @@ The worker:
 - verifies the local workspace's plan ID and hash before later stages;
 - executes only known job types, not arbitrary shell commands.
 
+## Organisation capture passcodes
+
+Capture passcodes are salted and hashed with scrypt; the database does not store the original passcode. A successful entry creates a signed, twelve-hour, HTTP-only capture session for that organisation. Use a distinct passcode for every organisation and rotate it if it is shared outside the intended group.
+
 ## Approval boundaries
 
 An approval covers one job, not a general permission. The following are separate actions:

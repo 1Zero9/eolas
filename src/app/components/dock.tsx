@@ -22,14 +22,6 @@ function IdeasIcon() {
   );
 }
 
-function PlusIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
 function ProjectsIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -66,13 +58,6 @@ export default function Dock() {
       <Link href="/ideas" className={isActive(pathname, '/ideas') ? 'active' : undefined}>
         <IdeasIcon />
         Ideas
-      </Link>
-      <Link
-        href="/capture"
-        className={isActive(pathname, '/capture') ? 'dock-fab active' : 'dock-fab'}
-        aria-label="Capture idea"
-      >
-        <PlusIcon />
       </Link>
       <Link href="/projects" className={isActive(pathname, '/projects') ? 'active' : undefined}>
         <ProjectsIcon />

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { listIdeas } from '@/src/lib/ideas/idea-service';
+import { requireActiveOrganization } from '@/src/lib/organizations/organization-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,11 +12,12 @@ export default async function IdeasPage() {
   if (!authenticated) {
     redirect('/login');
   }
+  const organization = await requireActiveOrganization();
 
   let ideas = [] as Awaited<ReturnType<typeof listIdeas>>;
 
   try {
-    ideas = await listIdeas();
+    ideas = await listIdeas(organization.id);
   } catch {
     ideas = [];
   }

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { prisma } from '@/src/lib/db';
 import JobApproval from '@/src/app/jobs/job-approval';
+import { requireActiveOrganization } from '@/src/lib/organizations/organization-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,9 +12,10 @@ export default async function JobsPage() {
   if (!authenticated) {
     redirect('/login');
   }
+  const organization = await requireActiveOrganization();
 
   const jobs = await prisma.job.findMany({
-    orderBy: { createdAt: 'desc' },
+    where: { organizationId: organization.id }, orderBy: { createdAt: 'desc' },
     include: {
       idea: true,
       project: true,

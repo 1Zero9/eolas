@@ -3,14 +3,16 @@ import { notFound, redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { prisma } from '@/src/lib/db';
 import AssemblyPlanActions from '@/src/app/projects/[id]/plan-actions';
+import { requireActiveOrganization } from '@/src/lib/organizations/organization-service';
 import StageActions from '@/src/app/projects/[id]/stage-actions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
   if (!(await isAuthenticatedRoute())) redirect('/login');
-  const project = await prisma.project.findUnique({
-    where: { id: params.id },
+  const organization = await requireActiveOrganization();
+  const project = await prisma.project.findFirst({
+    where: { id: params.id, organizationId: organization.id },
     include: { assemblyPlans: { orderBy: { createdAt: 'desc' } }, jobs: { orderBy: { createdAt: 'desc' }, take: 10, include: { events: { orderBy: { createdAt: 'desc' }, take: 1 } } } },
   });
   if (!project) notFound();

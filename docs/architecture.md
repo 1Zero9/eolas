@@ -10,6 +10,12 @@
 | Eolas Desktop | Menu-bar notifications and local accelerator discovery | Optional Mac companion |
 | GitHub | Optional private source backup | External backup target |
 
+## Organisation boundary
+
+`Organization` is the top-level ownership record. Ideas, projects, and jobs carry a required organisation ID; notes, validation records, plans, and events inherit ownership through their parent record. Admin queries use the active workspace cookie and public capture requests resolve one organisation by its URL slug.
+
+Existing data is migrated to a capture-disabled **Legacy workspace**. This preserves history without accidentally exposing historical ideas through a new public capture URL.
+
 ## Data and execution flow
 
 ```text

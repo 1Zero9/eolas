@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { prisma } from '@/src/lib/db';
+import { requireActiveOrganization } from '@/src/lib/organizations/organization-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,9 +12,10 @@ export default async function ProjectsPage() {
   if (!authenticated) {
     redirect('/login');
   }
+  const organization = await requireActiveOrganization();
 
   const projects = await prisma.project.findMany({
-    orderBy: { createdAt: 'desc' },
+    where: { organizationId: organization.id }, orderBy: { createdAt: 'desc' },
   });
 
   return (

@@ -9,6 +9,7 @@ import IdeaControls from '@/src/app/ideas/[id]/components/idea-controls';
 import IdeaActions from '@/src/app/ideas/[id]/components/idea-actions';
 import IdeaValidation from '@/src/app/ideas/[id]/components/idea-validation';
 import { listValidations } from '@/src/lib/ideas/validation-service';
+import { requireActiveOrganization } from '@/src/lib/organizations/organization-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,11 +19,12 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
   if (!authenticated) {
     redirect('/login');
   }
+  const organization = await requireActiveOrganization();
 
   let idea = null as Awaited<ReturnType<typeof getIdea>>;
 
   try {
-    idea = await getIdea(params.id);
+    idea = await getIdea(params.id, organization.id);
   } catch {
     idea = null;
   }

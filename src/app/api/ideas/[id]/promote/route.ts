@@ -5,12 +5,14 @@ import { createAssemblyPlan } from '@/src/lib/assembly/assembly-plan-service';
 import { requireAuth } from '@/src/lib/auth';
 import { prisma } from '@/src/lib/db';
 import { listValidations } from '@/src/lib/ideas/validation-service';
+import { requireActiveOrganization } from '@/src/lib/organizations/organization-service';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const authError = requireAuth(request);
   if (authError) return authError;
+  const organization = await requireActiveOrganization();
 
-  const idea = await getIdea(params.id);
+  const idea = await getIdea(params.id, organization.id);
 
   if (!idea) {
     return NextResponse.json({ error: 'Idea not found' }, { status: 404 });
@@ -29,6 +31,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   try {
     const project = await prisma.project.findUnique({ where: { ideaId: idea.id } }) ?? await createProjectFromIdea({
       ideaId: idea.id,
+      organizationId: organization.id,
       name: idea.title ?? `Project for ${idea.id}`,
       description: idea.summary ?? `Project promoted from idea ${idea.id}`,
     });

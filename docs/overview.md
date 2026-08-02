@@ -8,6 +8,12 @@ Ideas are usually captured quickly, then get buried. When one is worth building,
 
 Eolas keeps those stages connected.
 
+## Two experiences, one system
+
+Every organisation has a passcode-gated capture PWA at `/o/<organisation-name>`. It is intentionally small: enter the passcode, capture an idea, and leave. It does not expose other ideas, projects, jobs, accelerators, or admin controls.
+
+The authenticated **Admin** workspace is where an operator reviews that organisation's ideas, validates them, assembles builds, approves jobs, and manages backups. Organisations never share these records.
+
 ## The journey of an idea
 
 1. **Capture** — save an idea from the web or mobile interface. The original capture stays attached to the idea.

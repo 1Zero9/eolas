@@ -4,6 +4,7 @@ import { slugify, normalizeText } from '@/src/lib/utils';
 
 export const projectCreateSchema = z.object({
   ideaId: z.string().cuid(),
+  organizationId: z.string().min(1),
   name: z.string().trim().min(1, 'Project name is required'),
   description: z.string().trim().max(2000).optional().or(z.literal('')),
 });
@@ -20,6 +21,7 @@ export async function createProjectFromIdea(input: ProjectCreateInput) {
   const project = await prisma.project.create({
     data: {
       ideaId: parsed.ideaId,
+      organizationId: parsed.organizationId,
       name: title,
       slug,
       description,

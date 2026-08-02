@@ -2,6 +2,10 @@
 
 ## Capture and incubate an idea
 
+### Organisation capture PWA
+
+An administrator creates a workspace in **Workspaces**, chooses a capture passcode, then shares `/o/<workspace-name>` with the organisation. Contributors enter that passcode and submit ideas; they cannot see existing content or the admin console. The PWA has a local light/dark toggle and can be installed from its capture page.
+
 1. Open **Capture** or **Mobile capture**.
 2. Enter the idea in your own words. Add a title and summary if useful.
 3. Open the saved idea and use **Idea workspace** for notes and **Build brief** for a build-ready description.

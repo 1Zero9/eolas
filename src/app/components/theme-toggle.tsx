@@ -1,0 +1,3 @@
+'use client';
+import { useEffect, useState } from 'react';
+export default function ThemeToggle() { const [theme, setTheme] = useState<'light' | 'dark'>('dark'); useEffect(() => { const saved = localStorage.getItem('eolas-theme'); const next = saved === 'light' ? 'light' : 'dark'; setTheme(next); document.documentElement.dataset.theme = next; }, []); function toggle() { const next = theme === 'dark' ? 'light' : 'dark'; setTheme(next); localStorage.setItem('eolas-theme', next); document.documentElement.dataset.theme = next; } return <button className="theme-toggle" type="button" onClick={toggle} aria-label={`Use ${theme === 'dark' ? 'light' : 'dark'} mode`}>{theme === 'dark' ? '☀︎' : '◐'}</button>; }

@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIdea, updateIdeaBuildBrief } from '@/src/lib/ideas/idea-service';
 import { requireAuth } from '@/src/lib/auth';
+import { requireActiveOrganization } from '@/src/lib/organizations/organization-service';
 import { buildBuildBriefPrompt, generateGeminiText, GeminiConfigError } from '@/src/lib/ai/gemini';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const authError = requireAuth(request);
   if (authError) return authError;
+  const organization = await requireActiveOrganization();
 
-  const idea = await getIdea(params.id);
+  const idea = await getIdea(params.id, organization.id);
 
   if (!idea) {
     return NextResponse.json({ error: 'Idea not found' }, { status: 404 });
@@ -36,10 +38,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const authError = requireAuth(request);
   if (authError) return authError;
+  const organization = await requireActiveOrganization();
 
   try {
     const body = await request.json();
-    const idea = await updateIdeaBuildBrief(params.id, body);
+    const idea = await updateIdeaBuildBrief(params.id, organization.id, body);
     return NextResponse.json(idea);
   } catch (error) {
     return NextResponse.json(
