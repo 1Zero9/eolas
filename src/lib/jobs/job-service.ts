@@ -65,6 +65,21 @@ export async function claimJob(workerName: string) {
   });
 
   for (const candidate of candidates) {
+    if (candidate.type === 'create_local_workspace') {
+      const payload = candidate.payload as { assemblyPlanId?: unknown; planHash?: unknown };
+      if (typeof payload.assemblyPlanId !== 'string' || typeof payload.planHash !== 'string') {
+        await prisma.$transaction([
+          prisma.job.update({
+            where: { id: candidate.id },
+            data: { status: 'FAILED', completedAt: new Date(), errorMessage: 'Legacy workspace job has no immutable assembly plan. Re-promote the idea to create a safe replacement plan.' },
+          }),
+          prisma.jobEvent.create({
+            data: { jobId: candidate.id, eventType: 'REJECTED_LEGACY', message: 'Rejected by worker claim: workspace jobs require an immutable assembly plan.' },
+          }),
+        ]);
+        continue;
+      }
+    }
     const claim = await prisma.job.updateMany({
       where: { id: candidate.id, status: 'QUEUED' },
       data: {

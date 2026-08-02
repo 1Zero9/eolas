@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   const job = await claimJob(workerId);
   if (!job) {
-    return NextResponse.json({ ok: false, message: 'No job available' }, { status: 204 });
+    return new NextResponse(null, { status: 204 });
   }
 
   const assemblyPlanId = (job.payload as { assemblyPlanId?: unknown })?.assemblyPlanId;

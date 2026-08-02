@@ -40,15 +40,17 @@ async function registerWorker() {
     }),
   });
 
+  if (!response.ok) throw new Error(`Worker registration failed: HTTP ${response.status}`);
   return response.json();
 }
 
 async function heartbeat() {
-  await globalThis.fetch(`${BASE_URL}/api/workers/heartbeat`, {
+  const response = await globalThis.fetch(`${BASE_URL}/api/workers/heartbeat`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify({ name: WORKER_NAME }),
   });
+  if (!response.ok) throw new Error(`Worker heartbeat failed: HTTP ${response.status}`);
 }
 
 async function claimJob() {
@@ -62,11 +64,13 @@ async function claimJob() {
     return null;
   }
 
-  return response.json();
+  if (!response.ok) throw new Error(`Worker claim failed: HTTP ${response.status}`);
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 }
 
 async function reportJobResult(jobId, success, payload) {
-  await globalThis.fetch(`${BASE_URL}/api/workers/complete-job`, {
+  const response = await globalThis.fetch(`${BASE_URL}/api/workers/complete-job`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify({
@@ -76,6 +80,7 @@ async function reportJobResult(jobId, success, payload) {
       errorMessage: success ? undefined : payload,
     }),
   });
+  if (!response.ok) throw new Error(`Worker completion report failed: HTTP ${response.status}`);
 }
 
 function sanitizeSlug(value) {
