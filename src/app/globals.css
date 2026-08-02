@@ -119,21 +119,27 @@ main {
 .app-nav {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  margin-left: auto;
-  flex-wrap: wrap;
+  gap: 0.55rem;
+  min-width: 0;
 }
 
-.app-nav a {
+.app-nav-primary,
+.app-nav-groups { display: flex; align-items: center; gap: 0.1rem; }
+
+.app-nav a,
+.app-nav-group summary {
   padding: 0.5rem 0.95rem;
   border-radius: 999px;
   font-size: 0.95rem;
   font-weight: 500;
   color: var(--text-secondary);
   transition: background 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+  list-style: none;
 }
 
-.app-nav a:hover {
+.app-nav a:hover,
+.app-nav-group summary:hover {
   background: var(--surface-alt);
   color: var(--text-primary);
 }
@@ -143,6 +149,15 @@ main {
   color: var(--primary);
   font-weight: 600;
 }
+
+.app-nav-group { position: relative; }
+.app-nav-group summary { display: flex; align-items: center; gap: 0.35rem; }
+.app-nav-group summary::-webkit-details-marker { display: none; }
+.app-nav-group summary span { color: var(--text-muted); font-size: 0.9rem; transition: transform 0.2s ease; }
+.app-nav-group[open] summary span { transform: rotate(180deg); }
+.app-nav-group.active summary { color: var(--primary); }
+.app-nav-menu { position: absolute; z-index: 20; top: calc(100% + 0.55rem); right: 0; min-width: 12.5rem; padding: 0.45rem; display: grid; gap: 0.15rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--surface); box-shadow: var(--shadow); }
+.app-nav-menu a { border-radius: 0.7rem; white-space: nowrap; }
 
 .app-nav .nav-cta {
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
