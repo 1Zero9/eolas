@@ -158,6 +158,10 @@ main {
   color: var(--ink);
 }
 
+.workspace-switcher { display: flex; align-items: center; gap: 0.4rem; margin-left: auto; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.workspace-switcher select { width: auto; max-width: 10rem; padding: 0.45rem 1.9rem 0.45rem 0.65rem; border-radius: 0.7rem; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); box-shadow: none; }
+.workspace-switcher + .app-nav { margin-left: 0; }
+
 .theme-toggle { padding: 0.45rem 0.65rem; min-width: 2.5rem; margin-left: 0.25rem; background: transparent; color: var(--text-secondary); border-color: var(--border); box-shadow: none; }
 .theme-toggle:hover { background: var(--surface-alt); color: var(--text-primary); box-shadow: none; }
 
@@ -725,6 +729,10 @@ button[type='submit'] {
   .app-nav {
     display: none;
   }
+
+  .workspace-switcher { margin-left: auto; }
+  .workspace-switcher span { display: none; }
+  .workspace-switcher select { max-width: 7rem; }
 
   .timeline-event {
     display: block;
