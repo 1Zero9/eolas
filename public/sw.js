@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eolas-cache-v5';
+const CACHE_NAME = 'eolas-cache-v6';
 const ASSETS_TO_CACHE = [
   '/',
   '/favicon-32.png',

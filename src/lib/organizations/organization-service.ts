@@ -24,16 +24,17 @@ function captureSignature(organizationId: string, expiresAt: number) {
   return crypto.createHmac('sha256', secret).update(`capture.${organizationId}.${expiresAt}`).digest('base64url');
 }
 
-export function createCaptureSession(organizationId: string) {
+export function createCaptureSession(organizationId: string, sessionVersion: number) {
   const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60 * 12;
-  return `${organizationId}.${expiresAt}.${captureSignature(organizationId, expiresAt)}`;
+  return `${organizationId}.${sessionVersion}.${expiresAt}.${captureSignature(organizationId, expiresAt)}`;
 }
 
-export function hasCaptureSession(cookieValue: string | undefined, organizationId: string) {
+export function hasCaptureSession(cookieValue: string | undefined, organizationId: string, sessionVersion: number) {
   if (!cookieValue) return false;
-  const [id, expiresAtText, signature] = cookieValue.split('.');
+  const [id, versionText, expiresAtText, signature] = cookieValue.split('.');
   const expiresAt = Number(expiresAtText);
-  if (id !== organizationId || !Number.isInteger(expiresAt) || expiresAt < Math.floor(Date.now() / 1000) || !signature) return false;
+  const version = Number(versionText);
+  if (id !== organizationId || version !== sessionVersion || !Number.isInteger(expiresAt) || expiresAt < Math.floor(Date.now() / 1000) || !signature) return false;
   try {
     const expected = captureSignature(organizationId, expiresAt);
     return expected.length === signature.length && crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
@@ -71,4 +72,13 @@ export async function createOrganization(input: { name: string; slug?: string; c
 export async function verifyOrganizationPasscode(organizationId: string, passcode: string) {
   const organization = await prisma.organization.findUnique({ where: { id: organizationId } });
   return !!organization?.captureEnabled && verifyPasscode(passcode, organization.capturePasscodeHash);
+}
+
+export async function rotateOrganizationPasscode(organizationId: string, passcode: string) {
+  const normalized = passcode.trim();
+  if (normalized.length < 8) throw new Error('Capture passcode must be at least 8 characters');
+  return prisma.organization.update({
+    where: { id: organizationId },
+    data: { capturePasscodeHash: hashPasscode(normalized), captureSessionVersion: { increment: 1 } },
+  });
 }

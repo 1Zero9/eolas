@@ -89,6 +89,7 @@ model Organization {
   name                 String
   captureEnabled       Boolean   @default(true)
   capturePasscodeHash  String?
+  captureSessionVersion Int      @default(1)
   ideas                Idea[]
   projects             Project[]
   jobs                 Job[]

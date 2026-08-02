@@ -24,7 +24,11 @@ The worker:
 
 ## Organisation capture passcodes
 
-Capture passcodes are salted and hashed with scrypt; the database does not store the original passcode. A successful entry creates a signed, twelve-hour, HTTP-only capture session for that organisation. Use a distinct passcode for every organisation and rotate it if it is shared outside the intended group.
+Capture passcodes are salted and hashed with scrypt; the database does not store the original passcode. A successful entry creates a signed, twelve-hour, HTTP-only capture session for that organisation. Use a distinct passcode for every organisation and rotate it if it is shared outside the intended group. Rotation invalidates every existing capture session for that organisation.
+
+Passcode verification is rate-limited to eight failed attempts per organisation and source address in fifteen minutes. This limiter is deliberately local-process protection for the current local deployment; move it to a shared store before operating multiple web instances.
+
+When a capture device is offline, unsent ideas are held in that browser's local storage and retried when it reconnects. Treat the device as part of the trust boundary: use an organisation-managed device or clear its browser data after use on a shared device.
 
 ## Approval boundaries
 

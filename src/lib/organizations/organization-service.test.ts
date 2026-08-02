@@ -7,14 +7,15 @@ afterEach(() => { if (original === undefined) delete process.env.AUTH_SESSION_SE
 describe('organization capture sessions', () => {
   it('accepts a signed session only for its organization', () => {
     process.env.AUTH_SESSION_SECRET = 'organization-test-secret-value-that-is-long-enough';
-    const session = createCaptureSession('org-a');
-    expect(hasCaptureSession(session, 'org-a')).toBe(true);
-    expect(hasCaptureSession(session, 'org-b')).toBe(false);
+    const session = createCaptureSession('org-a', 1);
+    expect(hasCaptureSession(session, 'org-a', 1)).toBe(true);
+    expect(hasCaptureSession(session, 'org-b', 1)).toBe(false);
+    expect(hasCaptureSession(session, 'org-a', 2)).toBe(false);
   });
 
   it('rejects tampered capture sessions', () => {
     process.env.AUTH_SESSION_SECRET = 'organization-test-secret-value-that-is-long-enough';
-    const session = createCaptureSession('org-a');
-    expect(hasCaptureSession(`${session}x`, 'org-a')).toBe(false);
+    const session = createCaptureSession('org-a', 1);
+    expect(hasCaptureSession(`${session}x`, 'org-a', 1)).toBe(false);
   });
 });

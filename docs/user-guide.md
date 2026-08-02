@@ -4,7 +4,9 @@
 
 ### Organisation capture PWA
 
-An administrator creates a workspace in **Workspaces**, chooses a capture passcode, then shares `/o/<workspace-name>` with the organisation. Contributors enter that passcode and submit ideas; they cannot see existing content or the admin console. The PWA has a local light/dark toggle and can be installed from its capture page.
+An administrator creates a workspace in **Workspaces**, chooses a capture passcode, then shares `/o/<workspace-name>` with the organisation. Contributors enter that passcode and submit ideas; they cannot see existing content or the admin console. The PWA has a local light/dark toggle and can be installed from its capture page. The installed app opens directly into that organisation's capture page, rather than the admin dashboard.
+
+If a device loses connectivity after the capture page has been opened, Eolas keeps submitted ideas in that browser and sends them automatically when it reconnects. In **Workspaces**, the active workspace's passcode can be rotated; this immediately requires every contributor to enter the new passcode.
 
 1. Open **Capture** or **Mobile capture**.
 2. Enter the idea in your own words. Add a title and summary if useful.
