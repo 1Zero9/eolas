@@ -4,11 +4,12 @@ const { app, Tray, Menu, Notification, shell, nativeImage } = require('electron'
 const { loadConfig } = require('./lib/config');
 const { loadState, saveState } = require('./lib/state');
 
-const config = loadConfig();
-const statePath = path.join(app.getPath('userData'), 'state.json');
-const scanScriptPath = app.isPackaged
-  ? path.join(process.resourcesPath, 'scripts', 'scan-accelerators.js')
-  : path.join(__dirname, '..', 'scripts', 'scan-accelerators.js');
+// Electron's app paths are available only after the runtime has initialized.
+// Keeping this setup in `ready` avoids a launch-time failure before the tray
+// icon is created.
+let config;
+let statePath;
+let scanScriptPath;
 
 let tray = null;
 let unseenItems = [];
@@ -227,6 +228,12 @@ function startPolling() {
 }
 
 app.on('ready', () => {
+  config = loadConfig();
+  statePath = path.join(app.getPath('userData'), 'state.json');
+  scanScriptPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'scripts', 'scan-accelerators.js')
+    : path.join(__dirname, '..', 'scripts', 'scan-accelerators.js');
+
   if (process.platform === 'darwin') {
     app.dock.hide();
   }
