@@ -1,6 +1,10 @@
 {
   "name": "AI provider wrapper (Gemini)",
+  "version": "1.0.0",
   "description": "Minimal fetch-based wrapper around the Gemini generateContent API with typed config/request errors, ready to plug prompt builders into.",
   "category": "AI",
-  "capabilities": ["ai", "gemini", "text-generation"]
+  "capabilities": ["ai", "gemini", "text-generation"],
+  "provides": ["ai-provider"],
+  "targetStacks": ["nextjs-14"],
+  "dependencies": []
 }

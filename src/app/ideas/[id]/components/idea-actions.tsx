@@ -14,6 +14,15 @@ type Accelerator = {
   name: string;
   description: string | null;
   category: string;
+  version: string;
+};
+
+type AssemblyPlan = {
+  id: string;
+  planHash: string;
+  status: string;
+  conflicts: string[];
+  reuseMetrics: { acceleratorReusePercent: number; acceleratorFiles: number; totalFiles: number; acceleratorLines: number; totalLines: number };
 };
 
 export default function IdeaActions({ ideaId }: { ideaId: string }) {
@@ -25,6 +34,8 @@ export default function IdeaActions({ ideaId }: { ideaId: string }) {
   const [promoted, setPromoted] = useState(false);
   const [accelerators, setAccelerators] = useState<Accelerator[]>([]);
   const [selectedAcceleratorIds, setSelectedAcceleratorIds] = useState<string[]>([]);
+  const [plan, setPlan] = useState<AssemblyPlan | null>(null);
+  const [approvingPlan, setApprovingPlan] = useState(false);
 
   useEffect(() => {
     void fetch('/api/accelerators').then(async (response) => {
@@ -77,12 +88,34 @@ export default function IdeaActions({ ideaId }: { ideaId: string }) {
         throw new Error(payload.error || 'Unable to promote idea');
       }
 
+      setPlan(payload.plan ?? null);
       setPromoted(true);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to promote idea');
     } finally {
       setPromoting(false);
+    }
+  }
+
+  async function handleApprovePlan() {
+    if (!plan) return;
+    setApprovingPlan(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/assembly-plans/${plan.id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approver: 'owner' }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'Unable to approve assembly plan');
+      setPlan(payload.plan);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to approve assembly plan');
+    } finally {
+      setApprovingPlan(false);
     }
   }
 
@@ -112,7 +145,7 @@ export default function IdeaActions({ ideaId }: { ideaId: string }) {
                 onChange={() => toggleAccelerator(accelerator.id)}
               />
               <span>
-                <strong>{accelerator.name}</strong>
+                <strong>{accelerator.name} <span className="small-text">v{accelerator.version}</span></strong>
                 {accelerator.description ? (
                   <span className="small-text"> — {accelerator.description}</span>
                 ) : null}
@@ -154,8 +187,24 @@ export default function IdeaActions({ ideaId }: { ideaId: string }) {
       ) : null}
 
       {promoted ? (
-        <div className="alert alert-success" role="status" style={{ marginTop: '1rem' }}>
-          ✓ Promoted to project. A build job has been queued for your worker.
+        <div className="alert alert-success" role="status" style={{ marginTop: '1rem', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <strong>✓ Assembly plan created</strong>
+          {plan ? (
+            <>
+              <p style={{ margin: '0.4rem 0 0' }}>
+                Reuse: {plan.reuseMetrics.acceleratorReusePercent}% ({plan.reuseMetrics.acceleratorLines} of {plan.reuseMetrics.totalLines} planned lines; {plan.reuseMetrics.acceleratorFiles} of {plan.reuseMetrics.totalFiles} files).
+              </p>
+              {plan.conflicts.length > 0 ? (
+                <p className="small-text" style={{ margin: '0.4rem 0 0' }}>Resolve before approval: {plan.conflicts.join('; ')}</p>
+              ) : plan.status === 'DRAFT' ? (
+                <button type="button" style={{ marginTop: '0.75rem' }} onClick={handleApprovePlan} disabled={approvingPlan}>
+                  {approvingPlan ? 'Approving…' : 'Approve exact plan and queue local build'}
+                </button>
+              ) : (
+                <p className="small-text" style={{ margin: '0.4rem 0 0' }}>Plan is {plan.status.toLowerCase()}; its immutable hash starts {plan.planHash.slice(0, 12)}.</p>
+              )}
+            </>
+          ) : <p style={{ margin: '0.4rem 0 0' }}>Open the project to review and approve its assembly plan.</p>}
         </div>
       ) : null}
     </>

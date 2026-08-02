@@ -1,6 +1,10 @@
 {
   "name": "Prisma + Postgres starter",
+  "version": "1.0.0",
   "description": "Prisma client singleton safe for Next.js dev hot-reload, plus the datasource block for a Postgres-backed app.",
   "category": "Data layer",
-  "capabilities": ["database", "postgres", "prisma", "next.js"]
+  "capabilities": ["database", "postgres", "prisma", "next.js"],
+  "provides": ["database-client"],
+  "targetStacks": ["nextjs-14"],
+  "dependencies": ["@prisma/client", "prisma"]
 }

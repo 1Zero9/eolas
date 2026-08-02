@@ -1,0 +1,10 @@
+{
+  "name": "Next.js app baseline",
+  "version": "1.0.0",
+  "description": "A minimal, runnable Next.js 14 + TypeScript application foundation. Use it as the base for every web project so other accelerators have a known compatible target.",
+  "category": "Application foundation",
+  "capabilities": ["next.js", "typescript", "app-router", "web-app"],
+  "provides": ["nextjs-app"],
+  "targetStacks": ["nextjs-14"],
+  "dependencies": ["next", "react", "react-dom", "typescript", "@types/node", "@types/react", "@types/react-dom"]
+}

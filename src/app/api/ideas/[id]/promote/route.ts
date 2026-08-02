@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIdea } from '@/src/lib/ideas/idea-service';
 import { createProjectFromIdea } from '@/src/lib/projects/project-service';
-import { createJob } from '@/src/lib/jobs/job-service';
-import { getAcceleratorsByIds } from '@/src/lib/accelerators/accelerator-service';
+import { createAssemblyPlan } from '@/src/lib/assembly/assembly-plan-service';
 import { requireAuth } from '@/src/lib/auth';
+import { prisma } from '@/src/lib/db';
+import { listValidations } from '@/src/lib/ideas/validation-service';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const authError = requireAuth(request);
@@ -15,61 +16,25 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ error: 'Idea not found' }, { status: 404 });
   }
 
+  const [latestValidation] = await listValidations(idea.id);
+  if (!latestValidation || latestValidation.decision !== 'BUILD') {
+    return NextResponse.json({ error: 'Record a “Ready to build” validation decision before creating an assembly plan.' }, { status: 409 });
+  }
+
   const body = await request.json().catch(() => ({}));
   const acceleratorIds = Array.isArray(body?.acceleratorIds)
     ? body.acceleratorIds.filter((id: unknown): id is string => typeof id === 'string')
     : [];
 
-  const accelerators = await getAcceleratorsByIds(acceleratorIds);
-
-  const project = await createProjectFromIdea({
-    ideaId: idea.id,
-    name: idea.title ?? `Project for ${idea.id}`,
-    description: idea.summary ?? `Project promoted from idea ${idea.id}`,
-  });
-
-  const ideaFiles = [
-    {
-      path: 'README.md',
-      content: `# ${project.name}\n\n${project.description ?? ''}`,
-    },
-    {
-      path: 'docs/idea.md',
-      content: `# Idea\n\n${idea.rawCapture}`,
-    },
-    {
-      path: 'docs/build-brief.md',
-      content: idea.buildBrief
-        ? `# Build brief\n\n${idea.buildBrief}`
-        : `# Build brief\n\nNo build brief was generated for this idea before promotion.\n\n## Idea\n\n${idea.rawCapture}${idea.summary ? `\n\n## Summary\n\n${idea.summary}` : ''}`,
-    },
-  ];
-
-  const files = new Map<string, string>();
-  for (const accelerator of accelerators) {
-    for (const file of accelerator.files) {
-      files.set(file.path, file.content);
-    }
+  try {
+    const project = await prisma.project.findUnique({ where: { ideaId: idea.id } }) ?? await createProjectFromIdea({
+      ideaId: idea.id,
+      name: idea.title ?? `Project for ${idea.id}`,
+      description: idea.summary ?? `Project promoted from idea ${idea.id}`,
+    });
+    const plan = await createAssemblyPlan({ projectId: project.id, idea, project, acceleratorIds });
+    return NextResponse.json({ project, plan }, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to create assembly plan' }, { status: 400 });
   }
-  for (const file of ideaFiles) {
-    files.set(file.path, file.content);
-  }
-
-  await createJob({
-    ideaId: idea.id,
-    projectId: project.id,
-    type: 'create_local_workspace',
-    executionTarget: 'LOCAL_WORKER',
-    payload: {
-      projectId: project.id,
-      projectName: project.name,
-      slug: project.slug,
-      files: Array.from(files.entries()).map(([path, content]) => ({ path, content })),
-      accelerators: accelerators.map((accelerator) => ({ id: accelerator.id, name: accelerator.name })),
-      initialiseGit: true,
-    },
-    requiresApproval: true,
-  });
-
-  return NextResponse.json({ project });
 }

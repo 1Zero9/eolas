@@ -21,19 +21,27 @@ export async function createJob(input: z.infer<typeof jobCreateSchema>) {
       status: 'PENDING',
       payload: parsed.payload,
       requiresApproval: parsed.requiresApproval,
+      events: { create: { eventType: 'CREATED', message: parsed.requiresApproval ? 'Job created and awaiting approval.' : 'Job created and queued.' } },
     },
   });
 }
 
 export async function approveJob(id: string, approver: string) {
-  return prisma.job.update({
-    where: { id },
-    data: {
-      status: 'QUEUED',
-      approvedAt: new Date(),
-      approvedBy: approver,
-      requiresApproval: false,
-    },
+  const existing = await prisma.job.findUnique({ where: { id } });
+  if (!existing) throw new Error('Job not found');
+  if (existing.type === 'create_local_workspace') {
+    const payload = existing.payload as { assemblyPlanId?: unknown; planHash?: unknown };
+    if (typeof payload.assemblyPlanId !== 'string' || typeof payload.planHash !== 'string') {
+      throw new Error('Legacy workspace jobs cannot be approved. Create and approve a new assembly plan from the project instead.');
+    }
+  }
+  return prisma.$transaction(async (tx) => {
+    const job = await tx.job.update({
+      where: { id },
+      data: { status: 'QUEUED', approvedAt: new Date(), approvedBy: approver, requiresApproval: false },
+    });
+    await tx.jobEvent.create({ data: { jobId: id, eventType: 'APPROVED', message: `Approved by ${approver}.` } });
+    return job;
   });
 }
 
@@ -69,6 +77,7 @@ export async function claimJob(workerName: string) {
     });
 
     if (claim.count === 1) {
+      await prisma.jobEvent.create({ data: { jobId: candidate.id, eventType: 'CLAIMED', message: `Claimed by worker ${worker.name}.`, metadata: { workerId: worker.id } } });
       return prisma.job.findUnique({ where: { id: candidate.id } });
     }
   }
@@ -77,14 +86,10 @@ export async function claimJob(workerName: string) {
 }
 
 export async function completeJob(jobId: string, result: any) {
-  return prisma.job.update({
-    where: { id: jobId },
-    data: {
-      status: 'COMPLETED',
-      completedAt: new Date(),
-      result,
-      errorMessage: null,
-    },
+  return prisma.$transaction(async (tx) => {
+    const job = await tx.job.update({ where: { id: jobId }, data: { status: 'COMPLETED', completedAt: new Date(), result, errorMessage: null } });
+    await tx.jobEvent.create({ data: { jobId, eventType: 'COMPLETED', message: 'Worker reported successful completion.', metadata: result ?? undefined } });
+    return job;
   });
 }
 
@@ -100,15 +105,9 @@ export async function failJob(jobId: string, errorMessage: string) {
   const attempts = job.attempts + 1;
   const shouldRetry = attempts < job.maxAttempts;
 
-  return prisma.job.update({
-    where: { id: jobId },
-    data: {
-      status: shouldRetry ? 'QUEUED' : 'FAILED',
-      attempts,
-      errorMessage,
-      lockedAt: null,
-      lockedBy: null,
-      workerId: null,
-    },
+  return prisma.$transaction(async (tx) => {
+    const updated = await tx.job.update({ where: { id: jobId }, data: { status: shouldRetry ? 'QUEUED' : 'FAILED', attempts, errorMessage, lockedAt: null, lockedBy: null, workerId: null } });
+    await tx.jobEvent.create({ data: { jobId, eventType: shouldRetry ? 'RETRY_QUEUED' : 'FAILED', message: errorMessage, metadata: { attempts } } });
+    return updated;
   });
 }

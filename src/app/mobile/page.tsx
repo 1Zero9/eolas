@@ -61,7 +61,7 @@ export default function MobileCapturePage() {
     <main>
       <section className="card surface hero-card">
         <h1>Mobile capture</h1>
-        <p className="small-text">Quickly log ideas, iterations, and travel thoughts while you're on the go.</p>
+        <p className="small-text">Quickly log ideas, iterations, and travel thoughts while you&apos;re on the go.</p>
       </section>
 
       <section className="card surface" style={{ marginTop: '1.5rem' }}>

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { claimJob } from '@/src/lib/jobs/job-service';
 import { requireWorkerSecret } from '@/src/lib/worker-auth';
+import { prisma } from '@/src/lib/db';
 
 export async function POST(request: Request) {
   const authError = requireWorkerSecret(request);
@@ -18,5 +19,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: 'No job available' }, { status: 204 });
   }
 
+  const assemblyPlanId = (job.payload as { assemblyPlanId?: unknown })?.assemblyPlanId;
+  if (job.type === 'create_local_workspace' && typeof assemblyPlanId === 'string') {
+    await prisma.assemblyPlan.updateMany({
+      where: { id: assemblyPlanId, status: 'APPROVED' },
+      data: { status: 'EXECUTING', executionStartedAt: new Date() },
+    });
+  }
   return NextResponse.json(job);
 }

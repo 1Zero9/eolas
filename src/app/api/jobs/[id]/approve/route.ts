@@ -9,6 +9,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const body = await request.json().catch(() => ({}));
   const approver = (body?.approver as string) || 'system';
 
-  const job = await approveJob(params.id, approver);
-  return NextResponse.json(job);
+  try { return NextResponse.json(await approveJob(params.id, approver)); }
+  catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to approve job' }, { status: 400 }); }
 }

@@ -36,5 +36,25 @@ export async function POST(request: Request) {
     });
   }
 
+  if (success && job.type === 'git_commit' && result?.commitSha && job.projectId) {
+    await prisma.project.update({ where: { id: job.projectId }, data: { lastCommitSha: result.commitSha, status: 'ACTIVE' } });
+  }
+
+  if (success && job.type === 'github_backup' && result?.githubUrl && job.projectId) {
+    await prisma.project.update({ where: { id: job.projectId }, data: { githubUrl: result.githubUrl, lastCommitSha: result.commitSha ?? undefined, backedUpAt: new Date() } });
+  }
+
+  const assemblyPlanId = (job.payload as { assemblyPlanId?: unknown })?.assemblyPlanId;
+  if (job.type === 'create_local_workspace' && typeof assemblyPlanId === 'string') {
+    await prisma.assemblyPlan.updateMany({
+      where: { id: assemblyPlanId },
+      data: success
+        ? { status: 'COMPLETED', completedAt: new Date(), result: result ?? null, errorMessage: null }
+        : job.status === 'QUEUED'
+          ? { status: 'APPROVED', errorMessage }
+          : { status: 'FAILED', errorMessage },
+    });
+  }
+
   return NextResponse.json({ ok: true, job });
 }

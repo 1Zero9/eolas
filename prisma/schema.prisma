@@ -44,6 +44,22 @@ enum WorkerStatus {
   DISABLED
 }
 
+enum AssemblyPlanStatus {
+  DRAFT
+  APPROVED
+  EXECUTING
+  COMPLETED
+  FAILED
+  SUPERSEDED
+}
+
+enum ValidationDecision {
+  VALIDATE
+  BUILD
+  PARK
+  REJECT
+}
+
 model Idea {
   id         String         @id @default(cuid())
   title      String?
@@ -54,6 +70,7 @@ model Idea {
   status     IdeaStatus     @default(INBOX)
   source     IdeaSource     @default(WEB)
   analyses   IdeaAnalysis[]
+  validations IdeaValidation[]
   notes      IdeaNote[]
   project    Project?       @relation()
   jobs       Job[]
@@ -62,6 +79,25 @@ model Idea {
 
   @@index([status])
   @@index([createdAt])
+}
+
+model IdeaValidation {
+  id                   String             @id @default(cuid())
+  ideaId               String
+  decision             ValidationDecision
+  problemClarity       Int
+  evidenceStrength     Int
+  effortEstimate       Int
+  riskiestAssumption   String             @db.Text
+  smallestTest         String             @db.Text
+  decisionRationale    String             @db.Text
+  evidenceLinks        Json
+  createdBy            String
+  idea                 Idea               @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  createdAt            DateTime           @default(now())
+
+  @@index([ideaId, createdAt])
+  @@index([decision, createdAt])
 }
 
 model IdeaNote {
@@ -111,10 +147,34 @@ model Project {
   backedUpAt    DateTime?
   idea          Idea?         @relation(fields: [ideaId], references: [id], onDelete: SetNull)
   jobs          Job[]
+  assemblyPlans AssemblyPlan[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
   @@index([status])
+}
+
+model AssemblyPlan {
+  id                  String             @id @default(cuid())
+  projectId           String
+  status              AssemblyPlanStatus @default(DRAFT)
+  planHash            String             @unique
+  accelerators        Json
+  files               Json
+  reuseMetrics        Json
+  conflicts           Json
+  approvedAt          DateTime?
+  approvedBy          String?
+  executionStartedAt  DateTime?
+  completedAt         DateTime?
+  result              Json?
+  errorMessage        String?            @db.Text
+  project             Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([projectId, status])
+  @@index([status, createdAt])
 }
 
 model Job {

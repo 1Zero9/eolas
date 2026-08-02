@@ -63,7 +63,7 @@ export default function DiscoveredAccelerators({
 
       <div className="timeline" style={{ marginTop: '1rem' }}>
         {accelerators.map((accelerator) => {
-          const files = Array.isArray(accelerator.files) ? (accelerator.files as { path: string }[]) : [];
+          const files = Array.isArray(accelerator.files) ? (accelerator.files as { path: string; sha256?: string }[]) : [];
 
           return (
             <div key={accelerator.id} className="timeline-event">

@@ -111,7 +111,7 @@ export default function IdeaControls({ ideaId }: { ideaId: string }) {
 
       <Modal open={confirmDelete} onClose={() => setConfirmDelete(false)}>
         <h2>Delete this idea?</h2>
-        <p>This removes the idea and all of its notes. This can't be undone.</p>
+        <p>This removes the idea and all of its notes. This can&apos;t be undone.</p>
         <div className="modal-actions">
           <button type="button" className="button-secondary" onClick={() => setConfirmDelete(false)}>
             Cancel
@@ -125,7 +125,7 @@ export default function IdeaControls({ ideaId }: { ideaId: string }) {
       <Modal open={confirmMerge} onClose={() => setConfirmMerge(false)}>
         <h2>Merge idea?</h2>
         <p>
-          "{mergeTarget?.title || mergeTarget?.rawCapture.slice(0, 60)}" will be merged into this idea and
+          &quot;{mergeTarget?.title || mergeTarget?.rawCapture.slice(0, 60)}&quot; will be merged into this idea and
           removed. Its notes will move over.
         </p>
         <div className="modal-actions">

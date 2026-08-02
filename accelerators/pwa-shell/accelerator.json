@@ -1,6 +1,10 @@
 {
   "name": "PWA shell",
+  "version": "1.0.0",
   "description": "Installable PWA baseline: web app manifest, offline-first service worker with stale-while-revalidate caching, and a client-side registration component.",
   "category": "Mobile / PWA",
-  "capabilities": ["pwa", "offline", "service-worker", "installable"]
+  "capabilities": ["pwa", "offline", "service-worker", "installable"],
+  "provides": ["pwa"],
+  "targetStacks": ["nextjs-14"],
+  "dependencies": []
 }

@@ -1,14 +1,21 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
+import { z } from 'zod';
 import { prisma } from '@/src/lib/db';
 
 export type AcceleratorFile = { path: string; content: string };
 
 export type AcceleratorManifest = {
   name: string;
+  version: string;
   description?: string;
   category: string;
   capabilities?: string[];
+  provides?: string[];
+  conflictsWith?: string[];
+  targetStacks?: string[];
+  dependencies?: string[];
 };
 
 export type AcceleratorSummary = {
@@ -17,18 +24,35 @@ export type AcceleratorSummary = {
   name: string;
   description: string | null;
   category: string;
+  version: string;
   capabilities: string[];
+  provides: string[];
+  conflictsWith: string[];
+  targetStacks: string[];
+  dependencies: string[];
 };
 
 export type AcceleratorWithFiles = AcceleratorSummary & { files: AcceleratorFile[] };
 
 const ACCELERATORS_ROOT = path.join(process.cwd(), 'accelerators');
 
+const acceleratorManifestSchema = z.object({
+  name: z.string().trim().min(1),
+  version: z.string().regex(/^\d+\.\d+\.\d+$/, 'version must use semantic versioning (for example 1.0.0)'),
+  description: z.string().trim().optional(),
+  category: z.string().trim().min(1),
+  capabilities: z.array(z.string().trim().min(1)).default([]),
+  provides: z.array(z.string().trim().min(1)).default([]),
+  conflictsWith: z.array(z.string().trim().min(1)).default([]),
+  targetStacks: z.array(z.string().trim().min(1)).default([]),
+  dependencies: z.array(z.string().trim().min(1)).default([]),
+});
+
 function readManifest(slug: string): AcceleratorManifest | null {
   const manifestPath = path.join(ACCELERATORS_ROOT, slug, 'accelerator.json');
   if (!fs.existsSync(manifestPath)) return null;
   try {
-    return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    return acceleratorManifestSchema.parse(JSON.parse(fs.readFileSync(manifestPath, 'utf8')));
   } catch {
     return null;
   }
@@ -81,7 +105,12 @@ export async function listAccelerators(): Promise<AcceleratorSummary[]> {
         name: manifest.name,
         description: manifest.description ?? null,
         category: manifest.category,
+        version: manifest.version,
         capabilities: manifest.capabilities ?? [],
+        provides: manifest.provides ?? [],
+        conflictsWith: manifest.conflictsWith ?? [],
+        targetStacks: manifest.targetStacks ?? [],
+        dependencies: manifest.dependencies ?? [],
       };
     })
     .filter((accelerator): accelerator is AcceleratorSummary => accelerator !== null);
@@ -102,9 +131,18 @@ export async function getAccelerator(slug: string): Promise<AcceleratorWithFiles
     name: manifest.name,
     description: manifest.description ?? null,
     category: manifest.category,
+    version: manifest.version,
     capabilities: manifest.capabilities ?? [],
+    provides: manifest.provides ?? [],
+    conflictsWith: manifest.conflictsWith ?? [],
+    targetStacks: manifest.targetStacks ?? [],
+    dependencies: manifest.dependencies ?? [],
     files,
   };
+}
+
+export function hashAcceleratorFile(content: string) {
+  return crypto.createHash('sha256').update(content).digest('hex');
 }
 
 export async function getAcceleratorsByIds(ids: string[]): Promise<AcceleratorWithFiles[]> {
@@ -134,7 +172,9 @@ export type DiscoveredAcceleratorInput = {
   description?: string;
   category: string;
   capabilities?: string[];
-  files: AcceleratorFile[];
+  // Discovery records metadata only. Source code remains on the local machine
+  // until a human deliberately creates a reviewed Git accelerator.
+  files: Array<{ path: string; bytes?: number; sha256?: string }>;
 };
 
 export async function upsertDiscoveredAccelerators(candidates: DiscoveredAcceleratorInput[]) {

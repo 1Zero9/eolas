@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { isAuthenticatedRoute } from '@/src/lib/auth';
 import { prisma } from '@/src/lib/db';
+import JobApproval from '@/src/app/jobs/job-approval';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +17,7 @@ export default async function JobsPage() {
     include: {
       idea: true,
       project: true,
+      events: { orderBy: { createdAt: 'desc' }, take: 3 },
     },
   });
 
@@ -23,7 +25,7 @@ export default async function JobsPage() {
     <main>
       <section className="card surface hero-card">
         <h1>Jobs</h1>
-        <p className="small-text">See queued work, approvals, and worker status in one place.</p>
+        <p className="small-text">See immutable-plan execution and worker status in one place. Workspace builds are approved from their project&apos;s assembly plan.</p>
       </section>
 
       {jobs.length === 0 ? (
@@ -42,12 +44,8 @@ export default async function JobsPage() {
               </div>
               {job.idea ? <p className="small-text">Idea: {job.idea.title ?? job.idea.rawCapture}</p> : null}
               {job.project ? <p className="small-text">Project: {job.project.name}</p> : null}
-              <form action={`/api/jobs/${job.id}/approve`} method="post" style={{ marginTop: '1rem' }}>
-                <input type="hidden" name="approver" value="admin" />
-                <button type="submit" disabled={!job.requiresApproval || job.status !== 'PENDING'}>
-                  Approve job
-                </button>
-              </form>
+              {job.events.map((event) => <p key={event.id} className="small-text">{event.createdAt.toLocaleString()} · <strong>{event.eventType}</strong> · {event.message}</p>)}
+              {job.requiresApproval && job.status === 'PENDING' ? <JobApproval jobId={job.id} /> : null}
             </div>
           ))}
         </section>

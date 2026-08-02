@@ -1,6 +1,7 @@
 const fs = require('node:fs/promises');
 const os = require('os');
 const path = require('path');
+const crypto = require('node:crypto');
 
 const BASE_URL = process.env.EOLAS_CLOUD_URL || 'http://localhost:3000';
 const PROJECT_ROOT = path.resolve(process.env.EOLAS_PROJECT_ROOT || path.join(os.homedir(), 'Projects'));
@@ -89,8 +90,12 @@ async function collectFiles(repoDir) {
         try {
           const stat = await fs.stat(fullPath);
           if (stat.size > MAX_FILE_BYTES) continue;
-          const content = await fs.readFile(fullPath, 'utf8');
-          matches.push({ path: relativePath, content });
+          const content = await fs.readFile(fullPath);
+          matches.push({
+            path: relativePath,
+            bytes: stat.size,
+            sha256: crypto.createHash('sha256').update(content).digest('hex'),
+          });
         } catch {
           continue;
         }

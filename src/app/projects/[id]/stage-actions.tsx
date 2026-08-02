@@ -1,0 +1,9 @@
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+const labels = [{ type: 'install_dependencies', label: 'Approve dependency install' }, { type: 'run_build', label: 'Approve production build' }, { type: 'git_commit', label: 'Approve Git commit' }] as const;
+export default function StageActions({ projectId, githubUrl }: { projectId: string; githubUrl: string | null }) {
+  const router = useRouter(); const [busy, setBusy] = useState<string | null>(null); const [error, setError] = useState<string | null>(null); const [remote, setRemote] = useState(githubUrl ?? '');
+  async function schedule(type: string) { setBusy(type); setError(null); try { const res = await fetch(`/api/projects/${projectId}/stages`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, githubUrl: remote }) }); const data = await res.json().catch(() => ({})); if (!res.ok) throw new Error(data.error || 'Unable to schedule stage'); router.refresh(); } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to schedule stage'); } finally { setBusy(null); } }
+  return <div className="form-grid" style={{ marginTop: '1rem' }}><div className="button-grid">{labels.map((item) => <button key={item.type} type="button" className="button-secondary" onClick={() => schedule(item.type)} disabled={busy !== null}>{busy === item.type ? 'Scheduling…' : item.label}</button>)}</div><label>Existing private GitHub remote <input value={remote} onChange={(event) => setRemote(event.target.value)} placeholder="git@github.com:owner/repository.git" /></label><button type="button" onClick={() => schedule('github_backup')} disabled={busy !== null || !remote.trim()}>{busy === 'github_backup' ? 'Scheduling…' : 'Approve GitHub backup'}</button>{error ? <p className="alert alert-error">{error}</p> : null}</div>;
+}

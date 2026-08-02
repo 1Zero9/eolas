@@ -23,6 +23,7 @@ export default async function HomePage() {
   let ideaCount = 0;
   let projectCount = 0;
   let jobCount = 0;
+  let reusePercent: number | null = null;
   let recentIdeas: Array<{ id: string; title: string | null; rawCapture: string; createdAt: Date }> = [];
 
   try {
@@ -38,6 +39,17 @@ export default async function HomePage() {
     ]);
   } catch {
     // render with empty stats if the database is unavailable
+  }
+
+  try {
+    const plans = await prisma.assemblyPlan.findMany({
+      where: { status: { in: ['APPROVED', 'EXECUTING', 'COMPLETED'] } },
+      select: { reuseMetrics: true },
+    });
+    const values = plans.map((plan) => (plan.reuseMetrics as { acceleratorReusePercent?: unknown }).acceleratorReusePercent).filter((value): value is number => typeof value === 'number');
+    if (values.length) reusePercent = Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10;
+  } catch {
+    // A dashboard is still useful before the assembly-plan migration is applied.
   }
 
   return (
@@ -74,8 +86,8 @@ export default async function HomePage() {
           <div className="stat-label">Jobs</div>
         </Link>
         <div className="stat-card stat-accent">
-          <div className="stat-value">70%</div>
-          <div className="stat-label">Accelerator target</div>
+          <div className="stat-value">{reusePercent === null ? '—' : `${reusePercent}%`}</div>
+          <div className="stat-label">Measured plan reuse</div>
         </div>
       </section>
 

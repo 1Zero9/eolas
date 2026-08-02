@@ -7,6 +7,8 @@ import IdeaWorkspace from '@/src/app/ideas/[id]/components/idea-iterations';
 import IdeaBuildBrief from '@/src/app/ideas/[id]/components/idea-build-brief';
 import IdeaControls from '@/src/app/ideas/[id]/components/idea-controls';
 import IdeaActions from '@/src/app/ideas/[id]/components/idea-actions';
+import IdeaValidation from '@/src/app/ideas/[id]/components/idea-validation';
+import { listValidations } from '@/src/lib/ideas/validation-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +37,7 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
   }
 
   const legacyNotes = idea.workspace ? [] : await listIdeaNotes(idea.id);
+  const validations = await listValidations(idea.id);
 
   return (
     <main>
@@ -58,6 +61,8 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
       <IdeaWorkspace ideaId={idea.id} initialWorkspace={idea.workspace} initialNotes={legacyNotes} />
 
       <IdeaBuildBrief ideaId={idea.id} initialBuildBrief={idea.buildBrief} />
+
+      <IdeaValidation ideaId={idea.id} validations={validations} />
 
       <IdeaControls ideaId={idea.id} />
 

@@ -99,7 +99,13 @@ function ensureSafePath(root, target) {
 
 async function writeWorkspaceFiles(rootPath, files) {
   for (const file of files) {
+    if (!file || typeof file.path !== 'string' || typeof file.content !== 'string') {
+      throw new Error('Assembly plan contains an invalid file entry');
+    }
     const normalizedFilePath = path.normalize(file.path);
+    if (path.isAbsolute(normalizedFilePath) || normalizedFilePath === '..' || normalizedFilePath.startsWith(`..${path.sep}`)) {
+      throw new Error(`Unsafe assembly-plan path: ${file.path}`);
+    }
     const targetPath = ensureSafePath(rootPath, path.resolve(rootPath, normalizedFilePath));
     await fs.mkdir(path.dirname(targetPath), { recursive: true });
     await fs.writeFile(targetPath, file.content ?? '', 'utf8');
@@ -112,8 +118,33 @@ async function initializeGitRepository(rootPath) {
 
 async function handleCreateLocalWorkspace(job) {
   const payload = job.payload || {};
+  if (!payload.assemblyPlanId || !payload.planHash) {
+    throw new Error('Workspace jobs must reference an approved immutable assembly plan');
+  }
   const projectSlug = sanitizeSlug(payload.slug || payload.projectName || `project-${job.id}`);
+  if (!projectSlug) throw new Error('Workspace job has no usable project slug');
   const projectRoot = ensureSafePath(ALLOWED_ROOT, path.resolve(ALLOWED_ROOT, projectSlug));
+
+  let existingEntries = [];
+  try {
+    existingEntries = await fs.readdir(projectRoot);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+
+  // A repeat of the same approved plan is safe. Any other existing directory is
+  // deliberately refused: approval is for this exact plan, never for overwriting work.
+  if (existingEntries.length > 0) {
+    try {
+      const existing = JSON.parse(await fs.readFile(path.join(projectRoot, '.eolas', 'project.json'), 'utf8'));
+      if (existing.assemblyPlanId === payload.assemblyPlanId && existing.planHash === payload.planHash) {
+        return { localPath: projectRoot, idempotent: true };
+      }
+    } catch {
+      // fall through to the explicit refusal below
+    }
+    throw new Error(`Refusing to write into existing workspace: ${projectRoot}`);
+  }
 
   await fs.mkdir(projectRoot, { recursive: true });
   await writeWorkspaceFiles(projectRoot, payload.files || []);
@@ -127,6 +158,8 @@ async function handleCreateLocalWorkspace(job) {
         projectId: payload.projectId,
         projectName: payload.projectName,
         projectSlug,
+        assemblyPlanId: payload.assemblyPlanId,
+        planHash: payload.planHash,
         createdAt: new Date().toISOString(),
       },
       null,
@@ -141,13 +174,72 @@ async function handleCreateLocalWorkspace(job) {
     await initializeGitRepository(projectRoot);
   }
 
-  return { localPath: projectRoot };
+  return { localPath: projectRoot, idempotent: false };
+}
+
+async function getApprovedProjectRoot(job) {
+  const payload = job.payload || {};
+  if (!payload.assemblyPlanId || !payload.planHash || typeof payload.slug !== 'string') throw new Error('Project stage must reference an approved assembly plan');
+  const projectRoot = ensureSafePath(ALLOWED_ROOT, path.resolve(ALLOWED_ROOT, sanitizeSlug(payload.slug)));
+  const config = JSON.parse(await fs.readFile(path.join(projectRoot, '.eolas', 'project.json'), 'utf8'));
+  if (config.assemblyPlanId !== payload.assemblyPlanId || config.planHash !== payload.planHash) throw new Error('Workspace does not match the approved assembly plan');
+  return projectRoot;
+}
+
+async function handleInstallDependencies(job) {
+  const projectRoot = await getApprovedProjectRoot(job);
+  await execFileAsync('npm', ['install', '--ignore-scripts'], { cwd: projectRoot, maxBuffer: 1024 * 1024 * 10 });
+  return { localPath: projectRoot, command: 'npm install --ignore-scripts' };
+}
+
+async function handleRunBuild(job) {
+  const projectRoot = await getApprovedProjectRoot(job);
+  await execFileAsync('npm', ['run', 'build'], { cwd: projectRoot, maxBuffer: 1024 * 1024 * 10 });
+  return { localPath: projectRoot, command: 'npm run build' };
+}
+
+async function handleGitCommit(job) {
+  const projectRoot = await getApprovedProjectRoot(job);
+  await execFileAsync('git', ['add', '--all'], { cwd: projectRoot });
+  const { stdout } = await execFileAsync('git', ['status', '--porcelain'], { cwd: projectRoot });
+  if (!stdout.trim()) return { localPath: projectRoot, committed: false, message: 'No changes to commit' };
+  await execFileAsync('git', ['commit', '-m', 'Eolas: approved local build'], { cwd: projectRoot });
+  const { stdout: sha } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: projectRoot });
+  return { localPath: projectRoot, committed: true, commitSha: sha.trim() };
+}
+
+function isGitHubRemote(value) {
+  return typeof value === 'string' && (
+    /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+(?:\.git)?$/.test(value) ||
+    /^git@github\.com:[\w.-]+\/[\w.-]+(?:\.git)?$/.test(value)
+  );
+}
+
+async function handleGitHubBackup(job) {
+  const projectRoot = await getApprovedProjectRoot(job);
+  const remote = job.payload?.githubUrl;
+  if (!isGitHubRemote(remote)) throw new Error('Backup job has an invalid GitHub remote');
+  let existingRemote = '';
+  try { ({ stdout: existingRemote } = await execFileAsync('git', ['remote', 'get-url', 'origin'], { cwd: projectRoot })); } catch { /* origin is not configured yet */ }
+  if (existingRemote.trim() && existingRemote.trim() !== remote) throw new Error(`Refusing to replace existing origin: ${existingRemote.trim()}`);
+  if (!existingRemote.trim()) await execFileAsync('git', ['remote', 'add', 'origin', remote], { cwd: projectRoot });
+  await execFileAsync('git', ['push', '-u', 'origin', 'HEAD'], { cwd: projectRoot, maxBuffer: 1024 * 1024 * 10 });
+  const { stdout: sha } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: projectRoot });
+  return { localPath: projectRoot, githubUrl: remote, commitSha: sha.trim() };
 }
 
 async function handleJob(job) {
   switch (job.type) {
     case 'create_local_workspace':
       return handleCreateLocalWorkspace(job);
+    case 'install_dependencies':
+      return handleInstallDependencies(job);
+    case 'run_build':
+      return handleRunBuild(job);
+    case 'git_commit':
+      return handleGitCommit(job);
+    case 'github_backup':
+      return handleGitHubBackup(job);
     default:
       throw new Error(`Unsupported job type: ${job.type}`);
   }
@@ -168,12 +260,16 @@ async function main() {
       }
 
       console.log('Claimed job', job.id, job.type);
-      const result = await handleJob(job);
-      console.log('Completed job', job.id, result);
-      await reportJobResult(job.id, true, result);
+      try {
+        const result = await handleJob(job);
+        console.log('Completed job', job.id, result);
+        await reportJobResult(job.id, true, result);
+      } catch (error) {
+        console.error('Job failed', job.id, error.message || error);
+        await reportJobResult(job.id, false, error.message || String(error));
+      }
     } catch (error) {
       console.error('Worker error:', error.message || error);
-      await reportJobResult(error?.jobId ?? null, false, error.message ?? String(error));
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
   }
