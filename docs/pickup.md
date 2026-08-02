@@ -1,4 +1,6 @@
-# Pickup Notes
+# Pickup Notes (historical)
+
+> This was a point-in-time handover note. See the root [README](../README.md), [operations guide](operations.md), and [roadmap](roadmap.md) for current information.
 
 ## Current Status
 

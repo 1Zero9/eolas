@@ -13,7 +13,7 @@ Legacy `create_local_workspace` jobs cannot be approved because they lack an imm
 
 The worker accepts only workspace jobs containing an assembly plan ID and plan hash. It writes only inside `EOLAS_PROJECT_ROOT`; it rejects unsafe file paths and existing project directories. A repeated execution of the exact same plan is idempotent and returns the existing workspace without changing it.
 
-The worker currently creates the local workspace and Git repository only. Dependency installation, generated-code application, commits, pushes, external services, and deployment remain deliberately separate approved job types.
+The worker creates the local workspace and Git repository, then performs only separately approved build stages. Generated-code application, external-service creation, and deployment remain deliberately separate future job types.
 
 ## Approved local build stages
 

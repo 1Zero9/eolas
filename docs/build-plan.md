@@ -1,4 +1,6 @@
-# Eolas — V0.1 Build and Implementation Plan
+# Eolas — V0.1 Build and Implementation Plan (historical)
+
+> This document describes the original plan and is retained for context. For the current implementation, use the [documentation index](../README.md) and [roadmap](roadmap.md).
 
 > **Purpose:** Build the first working Eolas loop: capture an idea from mobile, store it safely in the cloud, enrich it, queue work, hand approved work to a local Mac worker, create a local project workspace, and back it up to GitHub.
 
